@@ -22,6 +22,7 @@ const PERMITIDAS = new Set([
   "conversas_recentes",
   "ver_organograma",
   "definir_meta_mensal",
+  "detectar_vendas_nas_conversas",
 ]);
 
 type Bloco = { type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> };

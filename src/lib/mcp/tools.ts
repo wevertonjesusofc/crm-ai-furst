@@ -378,6 +378,17 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "detectar_vendas_nas_conversas",
+    description: "Lê as conversas recentes do WhatsApp e do Instagram que têm sinal de pagamento (Pix, comprovante, fechado) e marca como Ganho as vendas que fecharam, com o valor e os procedimentos.",
+    inputSchema: { type: "object", properties: { dias: { type: "number", description: "Quantos dias para trás. Padrão 7." } } },
+    run: async (db, ctx, args) => {
+      const { varrerVendas } = await import("@/lib/vendaAutomatica");
+      const r = await varrerVendas(db, ctx.clinicaId, Math.min(Math.max(Number(args.dias) || 7, 1), 60));
+      if (!r.fechadas.length) return `Analisei ${r.analisadas} conversa(s) com sinal de pagamento em ${ctx.clinicaNome}. Nenhuma venda nova fechada.`;
+      return [`Vendas fechadas encontradas em ${ctx.clinicaNome}:`, ...r.fechadas.map((f) => `- ${f.titulo ?? "Venda"}${f.valor ? `: ${brl(f.valor)}` : ""}`)].join("\n");
+    },
+  },
+  {
     name: "definir_meta_mensal",
     description: "Define a meta de faturamento do mês da clínica (em reais). Ela aparece no Dashboard para o time ver quanto falta.",
     inputSchema: { type: "object", properties: { valor: { type: "number" } }, required: ["valor"] },

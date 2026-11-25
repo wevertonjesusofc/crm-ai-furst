@@ -88,9 +88,15 @@ export default function PipelineBoard() {
   }, [load]);
 
   async function moveDeal(dealId: string, stageId: string) {
+    const nome = stages.find((s) => s.id === stageId)?.name ?? "";
+    const status = nome === "Ganho" ? "won" : nome === "Perdido" ? "lost" : "open";
     setDeals((prev) => prev.map((d) => (d.id === dealId ? { ...d, stage_id: stageId } : d)));
-    await supabase.from("deals").update({ stage_id: stageId }).eq("id", dealId);
+    await supabase.from("deals").update({ stage_id: stageId, status }).eq("id", dealId);
   }
+
+  // Arrastar e soltar entre as etapas
+  const [arrastando, setArrastando] = useState<string | null>(null);
+  const [sobre, setSobre] = useState<string | null>(null);
 
   async function createDeal(stageId?: string) {
     const name = newLeadInput.trim();
@@ -441,7 +447,22 @@ export default function PipelineBoard() {
             const stageValor = stageDeals.reduce((acc, d) => acc + (d.value ?? 0), 0);
             const canAdd = !NO_ADD_STAGES.includes(stage.name);
             return (
-              <div key={stage.id} className="w-72 shrink-0">
+              <div
+                key={stage.id}
+                className="w-72 shrink-0"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (sobre !== stage.id) setSobre(stage.id);
+                }}
+                onDragLeave={() => setSobre((v) => (v === stage.id ? null : v))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const id = e.dataTransfer.getData("text/plain") || arrastando;
+                  setSobre(null);
+                  setArrastando(null);
+                  if (id) moveDeal(id, stage.id);
+                }}
+              >
                 <div className="flex items-center justify-between mb-1 px-1">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-gray-400" />
@@ -460,7 +481,7 @@ export default function PipelineBoard() {
                   )}
                 </div>
                 <div className="text-xs text-muted px-1 mb-2">{fmtMoney(stageValor)}</div>
-                <div className="bg-panel border border-border rounded-lg p-2 min-h-[160px] space-y-2">
+                <div className={`bg-panel border rounded-lg p-2 min-h-[160px] space-y-2 transition-colors ${sobre === stage.id ? "border-accent bg-accent/5" : "border-border"}`}>
                   {stageDeals.length === 0 && (
                     <div className="text-center py-8">
                       <Target size={22} className="text-muted mx-auto mb-2 opacity-40" />
@@ -470,7 +491,7 @@ export default function PipelineBoard() {
                           onClick={() => setShowNewDeal(true)}
                           className="text-accent text-xs mt-1"
                         >
-                          + Adicionar deal
+                          + Adicionar
                         </button>
                       )}
                     </div>
@@ -480,8 +501,15 @@ export default function PipelineBoard() {
                     return (
                       <div
                         key={deal.id}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("text/plain", deal.id);
+                          e.dataTransfer.effectAllowed = "move";
+                          setArrastando(deal.id);
+                        }}
+                        onDragEnd={() => setArrastando(null)}
                         onClick={() => deal.contact_id && router.push(`/comercial/leads/${deal.contact_id}`)}
-                        className="bg-panelmuted border border-border rounded-md p-3 text-sm cursor-pointer hover:border-accent/50"
+                        className={`bg-panelmuted border border-border rounded-md p-3 text-sm cursor-grab active:cursor-grabbing hover:border-accent/50 ${arrastando === deal.id ? "opacity-40" : ""}`}
                       >
                         <div className="flex items-start gap-2">
                           <div className="w-7 h-7 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-semibold shrink-0">
@@ -490,7 +518,7 @@ export default function PipelineBoard() {
                           <div className="flex-1 min-w-0">
                             <div className="text-white font-medium truncate">{name}</div>
                             <div className="text-muted text-xs flex items-center gap-1">
-                              <User size={10} /> weverton jesus
+                              <User size={10} /> {deal.title}
                             </div>
                           </div>
                         </div>
