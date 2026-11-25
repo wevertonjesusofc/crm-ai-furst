@@ -17,14 +17,14 @@ Claude (você) ── MCP central (sua instalação) ──► MCP do Rafael ─
 
 Rode na ordem, colando o arquivo inteiro e clicando em **Run**:
 
-`001` → `002` → `003` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → **`017_multiclinica`** → **`018_instalacao_por_clinica`** → **`019_conhecimento_clinica`** → **`020_ficha_paciente_e_trafego`**
+`001` → `002` → `003` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → **`017_multiclinica`** → **`018_instalacao_por_clinica`** → **`019_conhecimento_clinica`** → **`020_ficha_paciente_e_trafego`** → **`021_integracoes`**
 
-Na sua instalação atual (que já tem 001 a 016), rode só **017, 018, 019 e 020**.
+Na sua instalação atual (que já tem 001 a 016), rode só **017 a 021**.
 
-Num projeto **novo e vazio**, use o arquivo único `instalar_completo_001_a_020.sql`.
+Num projeto **novo e vazio**, use o arquivo único `instalar_completo.sql`.
 
 **Atenção aos acentos:** abra o arquivo num editor e copie de lá, ou copie pelo terminal com
-`LANG=en_US.UTF-8 pbcopy < instalar_completo_001_a_020.sql`. O `pbcopy` sem o `LANG` embaralha acentos e emojis.
+`LANG=en_US.UTF-8 pbcopy < instalar_completo.sql`. O `pbcopy` sem o `LANG` embaralha acentos e emojis.
 Se isso já aconteceu, rode `corrigir_acentos.sql`.
 
 ## 2. Variáveis do `.env.local` (e no Vercel: Settings › Environment Variables)

@@ -41,6 +41,8 @@ import MembrosTimePanel from "./panels/MembrosTimePanel";
 import RegrasAlertaPanel from "./panels/RegrasAlertaPanel";
 import AutomacoesLinkPanel from "./panels/AutomacoesLinkPanel";
 import TreinamentoEquipePanel from "./panels/TreinamentoEquipePanel";
+import IntegracaoPanel from "./panels/IntegracaoPanel";
+import { TELA_PARA_TIPO } from "@/lib/integracoes/catalogo";
 
 const CUSTOM_PANELS: Record<string, React.ComponentType> = {
   aparencia: AparenciaPanel,
@@ -54,6 +56,13 @@ const CUSTOM_PANELS: Record<string, React.ComponentType> = {
   "regras-alerta": RegrasAlertaPanel,
   "automacoes-config": AutomacoesLinkPanel,
   "treinamento-config": TreinamentoEquipePanel,
+  ...Object.fromEntries(
+    Object.entries(TELA_PARA_TIPO).map(([tela, tipo]) => {
+      const P = () => <IntegracaoPanel tipo={tipo} />;
+      P.displayName = `Integracao_${tipo}`;
+      return [tela, P];
+    })
+  ),
 };
 
 type Config = {
@@ -87,12 +96,13 @@ const CATEGORIES: { title: string; items: { key: string; label: string; Icon: ty
     title: "Integrações",
     items: [
       { key: "redes-sociais", label: "Redes sociais", Icon: Radio },
-      { key: "chaves-api", label: "Chaves de API", Icon: KeyRound },
+      { key: "chaves-api", label: "Inteligência artificial (chaves)", Icon: KeyRound },
       { key: "whatsapp-uazapi", label: "WhatsApp (UAZAPI)", Icon: MessageSquare },
       { key: "whatsapp-oficial", label: "WhatsApp Oficial (Cloud)", Icon: MessageSquare },
       { key: "telefonia", label: "Telefonia (VoIP)", Icon: Phone },
       { key: "email-marketing", label: "Email Marketing", Icon: Mail },
       { key: "meta-ads", label: "Meta Ads / Lead Ads", Icon: Send },
+      { key: "google-ads", label: "Google Ads", Icon: Send },
     ],
   },
   {

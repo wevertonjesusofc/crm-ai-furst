@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientFromRequest, serviceClient } from "@/lib/supabaseServer";
+import { clinicaDoUsuario, lerIntegracao } from "@/lib/integracoes/servidor";
 
 // Puxa da Meta (Facebook/Instagram Ads) o gasto, os cliques e as conversas
 // iniciadas de cada anúncio nos últimos 30 dias e grava por dia.
@@ -25,15 +26,18 @@ type Linha = {
 export async function POST(req: NextRequest) {
   const db = serviceClient();
   if (!db) return NextResponse.json({ error: "Servidor sem SUPABASE_SERVICE_ROLE_KEY configurada." }, { status: 500 });
-  const token = process.env.META_ACCESS_TOKEN;
-  const conta = process.env.META_AD_ACCOUNT_ID;
-  if (!token || !conta) return NextResponse.json({ error: "Conecte a Meta: falta META_ACCESS_TOKEN ou META_AD_ACCOUNT_ID." }, { status: 400 });
-
   const { data: u } = await clientFromRequest(req).auth.getUser();
   if (!u.user) return NextResponse.json({ error: "Faça login de novo." }, { status: 401 });
-  const { data: membro } = await db.from("clinica_membros").select("clinica_id").eq("user_id", u.user.id).order("created_at").limit(1).maybeSingle();
-  if (!membro) return NextResponse.json({ error: "Usuário sem clínica." }, { status: 403 });
-  const cid = membro.clinica_id as string;
+  const { clinicaId } = await clinicaDoUsuario(db, u.user.id);
+  if (!clinicaId) return NextResponse.json({ error: "Usuário sem clínica." }, { status: 403 });
+  const cid = clinicaId;
+
+  // Chaves da clínica (Configurações › Meta Ads), com o .env como reserva.
+  const meta = await lerIntegracao(db, cid, "meta_ads");
+  const token = meta.access_token;
+  const contaBruta = meta.ad_account_id;
+  if (!token || !contaBruta) return NextResponse.json({ error: "Conecte a Meta em Configurações › Meta Ads (ID da conta e token)." }, { status: 400 });
+  const conta = contaBruta.startsWith("act_") ? contaBruta : `act_${contaBruta}`;
 
   const versao = process.env.META_GRAPH_VERSION || "v23.0";
   const params = new URLSearchParams({

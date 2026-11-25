@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { segredo } from "@/lib/integracoes/servidor";
 
 // Motor simples dos agentes: monta o "cérebro" (prompt + tom de voz da clínica +
 // conhecimentos + procedimentos + regras) e chama o modelo de IA.
@@ -76,9 +77,12 @@ async function chamarGemini(key: string, system: string, historico: Turno[], tem
 
 /** Gera a resposta do agente para a conversa. "enviada" = paciente, "recebida" = agente. */
 export async function responder(db: SupabaseClient, clinicaId: string, agenteId: string, historico: Turno[]) {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  const geminiKey = process.env.GEMINI_API_KEY;
-  if (!anthropicKey && !geminiKey) throw new Error("Nenhuma chave de IA configurada (ANTHROPIC_API_KEY ou GEMINI_API_KEY).");
+  // Chave da clínica (Configurações › Inteligência artificial), com o .env como reserva.
+  const [anthropicKey, geminiKey] = await Promise.all([
+    segredo(clinicaId, "ia", "anthropic_api_key"),
+    segredo(clinicaId, "ia", "gemini_api_key"),
+  ]);
+  if (!anthropicKey && !geminiKey) throw new Error("Nenhuma chave de IA configurada. Coloque em Configurações › Inteligência artificial.");
   const cerebro = await montarPrompt(db, clinicaId, agenteId);
   if (!cerebro) throw new Error("Agente não encontrado nesta clínica.");
   return anthropicKey
