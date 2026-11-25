@@ -9,6 +9,7 @@ import { ContextoMcp } from "@/lib/mcp/auth";
 
 type Update = {
   update_id: number;
+  callback_query?: { id: string; data?: string; message?: { chat: { id: number } } };
   message?: {
     chat: { id: number; type: string };
     from?: { first_name?: string; last_name?: string; username?: string };
@@ -48,6 +49,21 @@ async function contextoDaClinica(db: SupabaseClient, clinicaId: string, nome: st
 
 /** Processa uma atualização do Telegram para a clínica. */
 export async function processarTelegram(db: SupabaseClient, clinicaId: string, up: Update) {
+  // Botões (ex.: "Sim, cobrar agora")
+  if (up.callback_query) {
+    const cfgB = await lerIntegracao(db, clinicaId, "telegram");
+    if (!cfgB.bot_token) return;
+    const botB = tg(cfgB.bot_token);
+    const chat = String(up.callback_query.message?.chat.id ?? "");
+    const { data: ok } = await db.from("canais_autorizados").select("id").eq("clinica_id", clinicaId).eq("canal", "telegram").eq("externo_id", chat).eq("ativo", true).maybeSingle();
+    await botB.chamar("answerCallbackQuery", { callback_query_id: up.callback_query.id }).catch(() => null);
+    const [acao, id] = (up.callback_query.data ?? "").split(":");
+    if (ok && id && (acao === "cobrar" || acao === "ignorar")) {
+      const { responderCobranca } = await import("@/lib/combinados");
+      await botB.enviar(chat, await responderCobranca(db, clinicaId, acao, id));
+    }
+    return;
+  }
   const msg = up.message;
   if (!msg || msg.chat.type !== "private") return;
   const cfg = await lerIntegracao(db, clinicaId, "telegram");
@@ -67,14 +83,21 @@ export async function processarTelegram(db: SupabaseClient, clinicaId: string, u
   // Liberação: /start CÓDIGO
   const texto = msg.text?.trim() ?? "";
   if (!liberado || !liberado.ativo) {
-    const codigo = texto.replace(/^\/start\s*/i, "").trim();
+    // "/start CÓDIGO" ou "/start CÓDIGO Nome" (o nome liga a pessoa do organograma)
+    const partes = texto.replace(/^\/start\s*/i, "").trim().split(/\s+/);
+    const codigo = partes.shift() ?? "";
+    const quem = partes.join(" ").trim();
     if (texto.toLowerCase().startsWith("/start") && cfg.codigo_acesso && codigo === cfg.codigo_acesso.trim()) {
+      const { data: pessoa } = quem
+        ? await db.from("agentes").select("id, nome, tier").eq("clinica_id", clinicaId).eq("tipo", "pessoa").ilike("nome", `${quem}%`).limit(1).maybeSingle()
+        : { data: null };
+      const papel = !pessoa ? "dono" : pessoa.tier === "ceo" ? "dono" : pessoa.tier === "manager" ? "gestor" : "equipe";
       const { data: gerente } = await db.from("agentes").select("id").eq("clinica_id", clinicaId).eq("nome", "Gerente").maybeSingle();
       const { data: sessao } = gerente
         ? await db.from("agente_sessoes").insert({ clinica_id: clinicaId, agente_id: gerente.id, canal: "telegram" }).select("id").single()
         : { data: null };
       await db.from("canais_autorizados").upsert(
-        { clinica_id: clinicaId, canal: "telegram", externo_id: chatId, nome, ativo: true, sessao_id: sessao?.id ?? null },
+        { clinica_id: clinicaId, canal: "telegram", externo_id: chatId, nome: pessoa?.nome ?? nome, papel, agente_id: pessoa?.id ?? null, ativo: true, sessao_id: sessao?.id ?? null },
         { onConflict: "clinica_id,canal,externo_id" }
       );
       await bot.enviar(chatId, `Oi${nome ? `, ${nome.split(" ")[0]}` : ""}! Sou o Gerente da clínica. Pode me perguntar por texto ou áudio. Experimenta: "como tá meu dia?"`);

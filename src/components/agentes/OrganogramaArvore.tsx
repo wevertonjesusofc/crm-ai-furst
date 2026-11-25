@@ -71,7 +71,7 @@ export default function OrganogramaArvore({ nos }: { nos: No[] }) {
     return (
       <div key={n.id} className="flex flex-col items-start">
         <Cartao n={n} />
-        {f.length > 0 && <div className="flex flex-col gap-2 mt-2 ml-5 pl-3 border-l border-[#2f3a4f]">{f.map(coluna)}</div>}
+        {f.length > 0 && <div className="flex flex-col gap-2 mt-2 ml-5 pl-3 border-l border-[#1A5646]">{f.map(coluna)}</div>}
       </div>
     );
   };
@@ -91,14 +91,14 @@ export default function OrganogramaArvore({ nos }: { nos: No[] }) {
       <style>{`
         .org ul { display:flex; justify-content:center; padding-top:20px; position:relative; margin:0; }
         .org li { list-style:none; position:relative; padding:20px 14px 0; display:flex; flex-direction:column; align-items:center; }
-        .org li::before, .org li::after { content:""; position:absolute; top:0; right:50%; width:50%; height:20px; border-top:1px solid #2f3a4f; }
-        .org li::after { right:auto; left:50%; border-left:1px solid #2f3a4f; }
+        .org li::before, .org li::after { content:""; position:absolute; top:0; right:50%; width:50%; height:20px; border-top:1px solid #1A5646; }
+        .org li::after { right:auto; left:50%; border-left:1px solid #1A5646; }
         .org li:only-child::before, .org li:only-child::after { display:none; }
         .org li:only-child { padding-top:0; }
         .org li:first-child::before, .org li:last-child::after { border:0; }
-        .org li:last-child::before { border-right:1px solid #2f3a4f; border-radius:0 6px 0 0; }
+        .org li:last-child::before { border-right:1px solid #1A5646; border-radius:0 6px 0 0; }
         .org li:first-child::after { border-radius:6px 0 0 0; }
-        .org ul ul::before { content:""; position:absolute; top:0; left:50%; height:20px; border-left:1px solid #2f3a4f; }
+        .org ul ul::before { content:""; position:absolute; top:0; left:50%; height:20px; border-left:1px solid #1A5646; }
         .org > ul { padding-top:0; }
       `}</style>
       <div ref={arvore} className="org w-max mx-auto">

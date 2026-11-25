@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (origem.startsWith("https://") && !origem.includes("localhost")) {
       const segredo = randomBytes(24).toString("hex");
       await db.from("integracoes_segredos").upsert({ clinica_id: cid, tipo: "telegram", nome: "webhook_secret", valor: segredo, updated_at: new Date().toISOString() });
-      await bot.chamar("setWebhook", { url: `${origem}/api/webhooks/telegram?c=${cid}`, secret_token: segredo, allowed_updates: ["message"] });
+      await bot.chamar("setWebhook", { url: `${origem}/api/webhooks/telegram?c=${cid}`, secret_token: segredo, allowed_updates: ["message", "callback_query"] });
       return NextResponse.json({ ok: true, modo: "webhook", msg: "Telegram ligado. As mensagens chegam sozinhas." });
     }
     await bot.chamar("deleteWebhook", { drop_pending_updates: false });
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   if (acao === "puxar") {
     const offset = Number(cfg.offset || 0);
-    const updates = (await bot.chamar("getUpdates", { offset: offset || undefined, timeout: 0, allowed_updates: ["message"] })) as { update_id: number }[];
+    const updates = (await bot.chamar("getUpdates", { offset: offset || undefined, timeout: 0, allowed_updates: ["message", "callback_query"] })) as { update_id: number }[];
     let ultimo = offset - 1;
     for (const up of updates) {
       try {

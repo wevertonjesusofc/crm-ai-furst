@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import FichaClinicaTab from "@/components/paciente/FichaClinicaTab";
+import OrigemDoPaciente from "@/components/paciente/OrigemDoPaciente";
 import { MOTIVOS_PERDA } from "@/lib/jornada";
 
 type Contact = {
@@ -53,6 +54,10 @@ type Contact = {
   funcionarios: string | null;
   faturamento: string | null;
   desafios: string | null;
+  objetivo?: string | null;
+  quando_quer_fazer?: string | null;
+  ja_fez_antes?: string | null;
+  decide_sozinho?: string | null;
   starred: boolean;
 };
 type Stage = { id: string; name: string; position: number };
@@ -158,7 +163,7 @@ export default function LeadDetailPage({
   const ganhoStage = stages.find((s) => s.name === "Ganho");
   const perdidoStage = stages.find((s) => s.name === "Perdido");
 
-  const qualificacaoDone = [contact.company, contact.funcionarios, contact.faturamento, contact.desafios].filter(
+  const qualificacaoDone = [contact.objetivo, contact.quando_quer_fazer, contact.ja_fez_antes, contact.decide_sozinho].filter(
     Boolean
   ).length;
 
@@ -363,28 +368,28 @@ export default function LeadDetailPage({
             </div>
             <div className="space-y-2">
               <EditableField
-                label="Empresa"
-                icon={<Building2 size={11} />}
-                value={contact.company}
-                onSave={(v) => saveField("company", v)}
-              />
-              <EditableField
-                label="Funcionários"
-                icon={<Users size={11} />}
-                value={contact.funcionarios}
-                onSave={(v) => saveField("funcionarios", v)}
-              />
-              <EditableField
-                label="Faturamento"
-                icon={<DollarSign size={11} />}
-                value={contact.faturamento}
-                onSave={(v) => saveField("faturamento", v)}
-              />
-              <EditableField
-                label="Desafios"
+                label="O que quer resolver"
                 icon={<AlertCircle size={11} />}
-                value={contact.desafios}
-                onSave={(v) => saveField("desafios", v)}
+                value={contact.objetivo ?? null}
+                onSave={(v) => saveField("objetivo", v)}
+              />
+              <EditableField
+                label="Quando quer fazer"
+                icon={<Users size={11} />}
+                value={contact.quando_quer_fazer ?? null}
+                onSave={(v) => saveField("quando_quer_fazer", v)}
+              />
+              <EditableField
+                label="Já fez antes? Onde?"
+                icon={<Building2 size={11} />}
+                value={contact.ja_fez_antes ?? null}
+                onSave={(v) => saveField("ja_fez_antes", v)}
+              />
+              <EditableField
+                label="Decide sozinho ou com alguém?"
+                icon={<DollarSign size={11} />}
+                value={contact.decide_sozinho ?? null}
+                onSave={(v) => saveField("decide_sozinho", v)}
               />
             </div>
           </div>
@@ -744,6 +749,8 @@ export default function LeadDetailPage({
           )}
         </div>
       </div>
+
+      <OrigemDoPaciente contactId={contact.id} />
     </div>
   );
 }

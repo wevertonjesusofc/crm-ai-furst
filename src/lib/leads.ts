@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { detectarVenda, temSinalDeVenda } from "@/lib/vendaAutomatica";
+import { detectarCombinado, temSinalDeCombinado } from "@/lib/combinados";
 
 // Registra um lead com a ORIGEM: cria/acha o paciente, marca anúncio e UTM no
 // primeiro toque, abre oportunidade no funil e guarda a primeira mensagem.
@@ -103,6 +104,8 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
     if (conversa) await db.from("mensagens").insert({ clinica_id: cid, conversa_id: conversa.id, direction: "recebida", body: mensagem });
     // Sinal de pagamento na mensagem: a IA confere a conversa e marca a venda como ganha.
     if (temSinalDeVenda(mensagem)) await detectarVenda(db, cid, contatoId).catch(() => null);
+    // "Me chama dia 17": vira combinado com data, para o time não esquecer.
+    if (temSinalDeCombinado(mensagem)) await detectarCombinado(db, cid, contatoId).catch(() => null);
   }
 
   if (novo || origem.origem_canal) {

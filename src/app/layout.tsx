@@ -3,8 +3,8 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "CRM AURA",
-  description: "CRM com IA de ponta a ponta para clínicas de saúde",
+  title: "Prontto AI",
+  description: "Sistema operacional comercial com IA para clínicas",
 };
 
 export default function RootLayout({

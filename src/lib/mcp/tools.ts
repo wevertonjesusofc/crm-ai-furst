@@ -378,6 +378,17 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "combinados_atrasados",
+    description: "Lista os combinados vencidos: pacientes que pediram para a clínica voltar a falar numa data (\"me chama dia 17\") e ninguém do time chamou. Mostra quem era o responsável e a frase do paciente.",
+    inputSchema: { type: "object", properties: {} },
+    run: async (db, ctx) => {
+      const { combinadosAtrasados } = await import("@/lib/combinados");
+      const xs = await combinadosAtrasados(db, ctx.clinicaId);
+      if (!xs.length) return `Nenhum combinado atrasado em ${ctx.clinicaNome}. 👏`;
+      return [`Combinados atrasados em ${ctx.clinicaNome}:`, ...xs.map((a) => `- ${a.contato} (responsável: ${a.responsavel}), combinado para ${a.combinado_para}: ${a.o_que}${a.trecho ? ` — "${a.trecho}"` : ""}`)].join("\n");
+    },
+  },
+  {
     name: "detectar_vendas_nas_conversas",
     description: "Lê as conversas recentes do WhatsApp e do Instagram que têm sinal de pagamento (Pix, comprovante, fechado) e marca como Ganho as vendas que fecharam, com o valor e os procedimentos.",
     inputSchema: { type: "object", properties: { dias: { type: "number", description: "Quantos dias para trás. Padrão 7." } } },

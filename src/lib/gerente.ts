@@ -23,6 +23,7 @@ const PERMITIDAS = new Set([
   "ver_organograma",
   "definir_meta_mensal",
   "detectar_vendas_nas_conversas",
+  "combinados_atrasados",
 ]);
 
 type Bloco = { type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> };

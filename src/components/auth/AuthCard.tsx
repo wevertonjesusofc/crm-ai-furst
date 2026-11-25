@@ -11,9 +11,9 @@ export default function AuthCard({
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center text-bg font-bold">A</div>
+          <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center text-bg font-bold">P</div>
           <div>
-            <div className="font-semibold text-white leading-none">CRM AURA</div>
+            <div className="font-semibold text-white leading-none">Prontto AI</div>
             <div className="text-[10px] text-muted tracking-wide">SISTEMA OPERACIONAL · AI FIRST</div>
           </div>
         </div>
