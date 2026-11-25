@@ -27,12 +27,30 @@ export const INTEGRACOES: Record<string, Integracao> = {
     descricao: "A chave que faz os agentes pensarem e responderem. Sem ela, o Playground e o teste do agente não respondem.",
     campos: [
       { nome: "anthropic_api_key", rotulo: "Chave da Anthropic (Claude)", segredo: true, placeholder: "sk-ant-...", dica: "Recomendada. Tem prioridade se estiver preenchida." },
-      { nome: "gemini_api_key", rotulo: "Chave do Google Gemini (opcional)", segredo: true, placeholder: "AIza...", dica: "Alternativa com cota grátis para testes." },
+      { nome: "gemini_api_key", rotulo: "Chave do Google Gemini (opcional)", segredo: true, placeholder: "AIza...", dica: "Alternativa com cota grátis para testes. Também entende áudio." },
+      { nome: "openai_api_key", rotulo: "Chave da OpenAI (opcional, para ouvir áudios)", segredo: true, placeholder: "sk-...", dica: "Usada só para transcrever mensagens de voz (Whisper). Sem ela, o Gemini transcreve." },
     ],
     testavel: true,
     comoConseguir: [
       "Anthropic: console.anthropic.com › API Keys › Create Key. Coloque créditos em Billing.",
       "Gemini: aistudio.google.com/apikey › Create API key.",
+    ],
+  },
+  telegram: {
+    tipo: "telegram",
+    titulo: "Telegram (Gerente no celular)",
+    descricao: "O Gerente (IA) conversa com você no Telegram: pergunte \"como tá meu dia?\" por texto ou áudio.",
+    campos: [
+      { nome: "bot_token", rotulo: "Token do bot", segredo: true, placeholder: "123456:ABC-...", dica: "Quem cria o bot é o @BotFather, no próprio Telegram." },
+      { nome: "bot_usuario", rotulo: "@ do bot", placeholder: "@PronttoClinicaBot" },
+      { nome: "codigo_acesso", rotulo: "Código de acesso", placeholder: "Ex.: prontto-4821", dica: "Quem mandar /start CÓDIGO para o bot passa a falar com o Gerente. Troque o código para bloquear novas pessoas." },
+    ],
+    testavel: true,
+    comoConseguir: [
+      "No Telegram, abra o @BotFather e mande /newbot. Escolha um nome e um @ terminado em bot.",
+      "Ele responde com o token (123456:ABC-...). Cole aqui em Token do bot.",
+      "Invente um código de acesso e salve.",
+      "No Telegram, abra o seu bot e mande: /start SEU-CÓDIGO",
     ],
   },
   whatsapp_oficial: {

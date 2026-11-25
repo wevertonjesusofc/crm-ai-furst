@@ -57,6 +57,15 @@ export default function IntegracaoPanel({ tipo }: { tipo: string }) {
     carregar();
   }
 
+  async function telegram(acao: "ativar" | "puxar") {
+    setAviso(null);
+    const { data: s } = await supabase.auth.getSession();
+    const resp = await fetch(`/api/telegram?acao=${acao}`, { method: "POST", headers: { authorization: `Bearer ${s.session?.access_token ?? ""}` } });
+    const d = await resp.json().catch(() => ({}));
+    if (!resp.ok) return setAviso({ ok: false, msg: d.error ?? "Não deu certo." });
+    setAviso({ ok: true, msg: acao === "puxar" ? `${d.mensagens ?? 0} mensagem(ns) respondida(s).` : d.msg });
+  }
+
   async function apagar(nome: string) {
     const { data: s } = await supabase.auth.getSession();
     await fetch("/api/integracoes", {
@@ -155,6 +164,12 @@ export default function IntegracaoPanel({ tipo }: { tipo: string }) {
             </button>
           )}
         </div>
+        {tipo === "telegram" && estado.segredos_preenchidos.includes("bot_token") && (
+          <div className="flex items-center gap-2 pt-1 border-t border-border">
+            <button onClick={() => telegram("ativar")} className="text-sm border border-accent/50 text-accent px-3 py-1.5 rounded-md">Ligar o Gerente no Telegram</button>
+            <button onClick={() => telegram("puxar")} className="text-sm border border-border text-white px-3 py-1.5 rounded-md">Buscar mensagens (modo teste)</button>
+          </div>
+        )}
         {aviso && <p className={`text-xs ${aviso.ok ? "text-accent" : "text-red-400"}`}>{aviso.msg}</p>}
         {!aviso && estado.ultimo_teste_msg && (
           <p className="text-[11px] text-muted">

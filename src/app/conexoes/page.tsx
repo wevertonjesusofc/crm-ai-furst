@@ -4,7 +4,7 @@
 // Cartões simples; clicou, abre o formulário com o passo a passo.
 
 import { useEffect, useState } from "react";
-import { Brain, Share2, MessageSquare, Megaphone, Search, Mail, Phone, Calendar, CheckCircle2, CircleDashed, XCircle, ArrowLeft } from "lucide-react";
+import { Brain, Share2, MessageSquare, Send, Megaphone, Search, Mail, Phone, Calendar, CheckCircle2, CircleDashed, XCircle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { INTEGRACOES } from "@/lib/integracoes/catalogo";
 import IntegracaoPanel from "@/components/sistema/panels/IntegracaoPanel";
@@ -16,6 +16,7 @@ const GRUPOS: { titulo: string; itens: { tipo: string; nome: string; frase: stri
       { tipo: "ia", nome: "Inteligência artificial", frase: "O cérebro dos agentes (Claude).", Icone: Brain },
       { tipo: "redes_sociais", nome: "Redes sociais (Zernio)", frase: "Uma chave conecta Instagram, TikTok e as outras redes.", Icone: Share2 },
       { tipo: "whatsapp_uazapi", nome: "WhatsApp", frase: "O número da clínica, pela UAZAPI.", Icone: MessageSquare },
+      { tipo: "telegram", nome: "Telegram", frase: "O Gerente (IA) no seu celular, por texto ou áudio.", Icone: Send },
     ],
   },
   {

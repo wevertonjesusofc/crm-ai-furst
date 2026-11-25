@@ -91,6 +91,13 @@ export async function testarIntegracao(tipo: string, v: Record<string, string>):
         const r = await get(`${v.servidor.replace(/\/$/, "")}/instance/status`, { token: v.token });
         return r.ok ? { ok: true, msg: "Instância da UAZAPI respondeu." } : { ok: false, msg: `A UAZAPI respondeu ${r.status}. Confira o endereço e o token.` };
       }
+      case "telegram": {
+        if (!v.bot_token) return { ok: false, msg: "Preencha o token do bot." };
+        const r = await get(`https://api.telegram.org/bot${v.bot_token}/getMe`);
+        return r.ok
+          ? { ok: true, msg: `Bot @${(r.json.result as { username?: string })?.username} conectado. Agora mande /start ${v.codigo_acesso || "SEU-CÓDIGO"} para ele no Telegram.` }
+          : { ok: false, msg: "O Telegram recusou o token. Confira com o @BotFather." };
+      }
       case "email_marketing": {
         if (!v.resend_api_key) return { ok: false, msg: "Preencha a chave da Resend." };
         const r = await get("https://api.resend.com/domains", { Authorization: `Bearer ${v.resend_api_key}` });
