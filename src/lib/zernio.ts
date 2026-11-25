@@ -82,6 +82,7 @@ export type ZernioPost = {
   mediaType?: string;
   mediaProductType?: string;
   analytics?: Metricas;
+  mediaItems?: { type?: string; url?: string | null; thumbnail?: string | null }[];
   platforms?: { platform: string; platformPostId?: string; accountId?: string; accountUsername?: string; platformPostUrl?: string; analytics?: Metricas }[];
 };
 

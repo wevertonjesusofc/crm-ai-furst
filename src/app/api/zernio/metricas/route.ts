@@ -70,7 +70,8 @@ export async function POST(req: NextRequest) {
             salvos: n(m.saves),
             cliques: n(m.clicks),
             taxa_engajamento: typeof m.engagementRate === "number" ? m.engagementRate : null,
-            metricas_brutas: m,
+            // _midias: cada foto do carrossel / o vídeo, para ver o post inteiro dentro do sistema
+            metricas_brutas: { ...m, _midias: (p.mediaItems ?? []).filter((i) => i.url).map((i) => ({ tipo: i.type ?? "image", url: i.url, capa: i.thumbnail ?? null })) },
             atualizado_em: new Date().toISOString(),
           };
         });

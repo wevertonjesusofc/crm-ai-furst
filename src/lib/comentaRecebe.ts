@@ -20,6 +20,9 @@ export function extrairPalavra(legenda: string | null): string | null {
   if (!m) return null;
   const p = m[1].trim();
   if (IGNORAR.has(p.toLowerCase())) return null;
+  // A palavra do gatilho vem em MAIÚSCULA na legenda ("Comenta BLINDAR").
+  // Isso evita pegar "manda pro teu sócio" ou "comenta aí".
+  if (p !== p.toUpperCase()) return null;
   return p.toUpperCase();
 }
 
@@ -135,6 +138,23 @@ export async function pausarGatilho(db: SupabaseClient, clinicaId: string, api: 
   const { data: g } = await db.from("gatilhos").select("zernio_automation_id").eq("id", id).eq("clinica_id", clinicaId).maybeSingle();
   if (g?.zernio_automation_id) await api.mudarAutomacao(g.zernio_automation_id, { isActive: false });
   await db.from("gatilhos").update({ ativo: false, updated_at: new Date().toISOString() }).eq("id", id);
+  return { ok: true };
+}
+
+/** Leva para a Zernio o texto editado (resposta no comentário, direct, botão). */
+export async function atualizarGatilho(db: SupabaseClient, clinicaId: string, api: Api, id: string) {
+  const { data: g } = await db.from("gatilhos").select("*").eq("id", id).eq("clinica_id", clinicaId).maybeSingle();
+  if (!g?.zernio_automation_id) return { ok: true, naZernio: false };
+  const corpo: Record<string, unknown> = { dmMessage: g.mensagem_direct };
+  if (g.resposta_publica?.trim()) corpo.commentReply = g.resposta_publica.trim();
+  corpo.buttons = g.botao_url && g.botao_titulo ? [{ type: "url", title: g.botao_titulo.slice(0, 20), url: g.botao_url }] : [];
+  await api.mudarAutomacao(g.zernio_automation_id, corpo);
+  return { ok: true, naZernio: true };
+}
+
+/** Some com o rascunho da tela. Fica marcado para a busca não criar de novo. */
+export async function descartarGatilho(db: SupabaseClient, clinicaId: string, id: string) {
+  await db.from("gatilhos").update({ stats: { descartado: true }, updated_at: new Date().toISOString() }).eq("id", id).eq("clinica_id", clinicaId).is("zernio_automation_id", null);
   return { ok: true };
 }
 
