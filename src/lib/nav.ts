@@ -22,6 +22,7 @@ export const nav: NavSection[] = [
     items: [
       { label: "Tráfego e vendas", href: "/marketing/trafego" },
       { label: "Redes sociais", href: "/marketing/redes-sociais" },
+      { label: "Social selling", href: "/marketing/social-selling" },
       { label: "Páginas", href: "/marketing/paginas" },
     ],
   },

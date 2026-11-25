@@ -113,6 +113,21 @@ export function zernio(chave: string) {
   return {
     contas: () => chamar<{ accounts: ZernioConta[]; hasAnalyticsAccess?: boolean }>("/accounts"),
 
+    /** Posts com comentários (mais recentes primeiro). */
+    postsComentados: (p: { accountId: string; limit?: number; cursor?: string }) => {
+      const q = new URLSearchParams({ accountId: p.accountId, limit: String(Math.min(p.limit ?? 50, 100)) });
+      if (p.cursor) q.set("cursor", p.cursor);
+      return chamar<{ data: { id: string; permalink?: string; content?: string; createdTime?: string; commentCount: number }[]; pagination?: { hasMore?: boolean; nextCursor?: string } }>(`/inbox/comments?${q}`);
+    },
+
+    /** Comentários de um post. */
+    comentarios: (postId: string, p: { accountId: string; limit?: number }) => {
+      const q = new URLSearchParams({ accountId: p.accountId, limit: String(Math.min(p.limit ?? 100, 100)) });
+      return chamar<{ comments?: { id: string; message?: string; createdTime?: string; url?: string; from?: { id?: string; name?: string; username?: string; isOwner?: boolean } }[]; post?: { permalink?: string } }>(
+        `/inbox/comments/${encodeURIComponent(postId)}?${q}`
+      );
+    },
+
     conversas: (p: { accountId: string; limit?: number; cursor?: string; updatedSince?: string }) => {
       const q = new URLSearchParams({ accountId: p.accountId, limit: String(Math.min(p.limit ?? 50, 100)) });
       if (p.cursor) q.set("cursor", p.cursor);

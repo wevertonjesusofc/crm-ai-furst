@@ -24,6 +24,7 @@ const PERMITIDAS = new Set([
   "definir_meta_mensal",
   "detectar_vendas_nas_conversas",
   "combinados_atrasados",
+  "social_selling",
 ]);
 
 type Bloco = { type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> };

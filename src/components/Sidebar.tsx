@@ -29,9 +29,9 @@ export default function Sidebar() {
   const visibleNav = nav.filter((section) => section.title === "Sistema" || !modulosDesativados.includes(section.title));
 
   return (
-    <aside className="w-60 shrink-0 bg-panel border-r border-border h-screen sticky top-0 overflow-y-auto text-sm">
-      <div className="px-4 py-4 flex items-center gap-2 border-b border-border">
-        <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center text-bg font-bold">P</div>
+    <aside className="prontto-menu w-60 shrink-0 h-screen sticky top-0 overflow-y-auto text-sm bg-[linear-gradient(180deg,rgba(15,122,90,.22)_0%,rgba(8,58,46,.55)_45%,rgba(6,42,33,.75)_100%)] backdrop-blur-xl border-r border-accent/10 shadow-[inset_-1px_0_0_rgba(201,169,110,.08)]">
+      <div className="px-4 py-5 flex items-center gap-2.5 border-b border-accent/10">
+        <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-bg font-serif text-lg font-bold shadow-[0_0_18px_rgba(201,169,110,.45)]">P</div>
         <div>
           <div className="font-semibold text-white leading-none">Prontto AI</div>
           <div className="text-[10px] text-muted tracking-wide">SISTEMA OPERACIONAL</div>
@@ -56,10 +56,10 @@ export default function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`block px-4 py-2.5 text-[13.5px] font-medium border-l-2 ${
+                    className={`prontto-item block mx-2 px-3 py-2.5 rounded-lg text-[13.5px] font-medium border transition-all duration-300 ${
                       active
-                        ? "border-accent bg-panelmuted text-white"
-                        : "border-transparent text-muted hover:text-white hover:bg-panelmuted"
+                        ? "border-accent/40 bg-accent/10 text-white shadow-[0_0_18px_rgba(201,169,110,.18)]"
+                        : "border-transparent text-muted hover:text-white hover:border-accent/30 hover:bg-[rgba(201,169,110,.07)] hover:shadow-[0_0_16px_rgba(201,169,110,.16)]"
                     }`}
                   >
                     {item.label}

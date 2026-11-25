@@ -378,6 +378,23 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "social_selling",
+    description: "Mostra quem mais engajou com a clínica no Instagram (comentários) e quem a IA marcou com alto potencial de virar paciente, com a mensagem sugerida para chamar no direct.",
+    inputSchema: { type: "object", properties: { limite: { type: "number" } } },
+    run: async (db, ctx, args) => {
+      const n = Math.min(Math.max(Number(args.limite) || 12, 1), 30);
+      const { data } = await db.from("engajados").select("usuario, nome, comentarios, posts, analise, status").eq("clinica_id", ctx.clinicaId).eq("status", "novo").order("comentarios", { ascending: false }).limit(n);
+      if (!data?.length) return `Ninguém engajando ainda em ${ctx.clinicaNome}. Atualize em Marketing › Social selling.`;
+      return [
+        `Mais engajados em ${ctx.clinicaNome} (ainda não abordados):`,
+        ...data.map((e) => {
+          const a = e.analise as { potencial?: string; perfil?: string; mensagem?: string } | null;
+          return `- @${e.usuario}${e.nome ? ` (${e.nome})` : ""}: ${e.comentarios} comentário(s) em ${e.posts} post(s)${a ? ` · potencial ${a.potencial}: ${a.perfil}. Mensagem: "${a.mensagem}"` : " · ainda sem análise"}`;
+        }),
+      ].join("\n");
+    },
+  },
+  {
     name: "combinados_atrasados",
     description: "Lista os combinados vencidos: pacientes que pediram para a clínica voltar a falar numa data (\"me chama dia 17\") e ninguém do time chamou. Mostra quem era o responsável e a frase do paciente.",
     inputSchema: { type: "object", properties: {} },

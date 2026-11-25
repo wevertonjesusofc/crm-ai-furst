@@ -13,9 +13,11 @@ import {
   MessageSquare,
   FlaskConical,
   Settings,
+  ListChecks,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import OrganogramaArvore from "@/components/agentes/OrganogramaArvore";
+import OrganogramaFuncionalidades from "@/components/agentes/OrganogramaFuncionalidades";
 
 type Tier = "ceo" | "manager" | "specialist";
 
@@ -75,8 +77,8 @@ const TIER_COLOR: Record<Tier, string> = {
   specialist: "border-l-orange-500",
 };
 
-export default function AgentesPage({ initialView = "lista" }: { initialView?: "lista" | "organograma" }) {
-  const [view, setView] = useState<"lista" | "organograma">(initialView);
+export default function AgentesPage({ initialView = "lista" }: { initialView?: "lista" | "organograma" | "funcionalidades" }) {
+  const [view, setView] = useState<"lista" | "organograma" | "funcionalidades">(initialView);
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -134,6 +136,14 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
             >
               <Network size={14} /> Organograma
             </button>
+            <button
+              onClick={() => setView("funcionalidades")}
+              className={`text-sm px-3 py-2 flex items-center gap-1.5 ${
+                view === "funcionalidades" ? "bg-accent text-bg font-medium" : "text-muted"
+              }`}
+            >
+              <ListChecks size={14} /> Funcionalidades
+            </button>
           </div>
           <Link
             href="/agentes/habilidades"
@@ -164,6 +174,8 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
           <p className="text-white font-medium">Nenhum agente ainda</p>
           <p className="text-muted text-sm mt-1">Crie o primeiro a partir de um template.</p>
         </div>
+      ) : view === "funcionalidades" ? (
+        <OrganogramaFuncionalidades />
       ) : view === "lista" ? (
         <div className="grid grid-cols-3 gap-4">
           {agentes.filter((a) => a.tipo !== "pessoa").map((a) => (

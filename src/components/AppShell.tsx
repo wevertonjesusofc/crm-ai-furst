@@ -61,7 +61,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-[radial-gradient(ellipse_at_15%_0%,rgba(15,122,90,.35),transparent_45%),radial-gradient(ellipse_at_90%_100%,rgba(201,169,110,.08),transparent_40%)]">
       <Sidebar />
       <main className="flex-1 min-w-0 min-h-screen">
         <div className="flex items-center justify-between gap-3 px-8 py-2.5 border-b border-border bg-panel/60 text-xs">

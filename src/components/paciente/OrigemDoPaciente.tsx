@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Instagram, Megaphone, Users, MessageCircle, Globe, Search, Gift, Eye, Heart, MessageSquare, CalendarCheck, Trophy, XCircle, Syringe, Sparkles, UserPlus } from "lucide-react";
+import { Instagram, Megaphone, Users, MessageCircle, Globe, Search, Gift, Eye, Heart, MessageSquare, CalendarCheck, Trophy, XCircle, Syringe, Sparkles, UserPlus, MapPin, RotateCcw, HeartHandshake } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { brl } from "@/lib/meta";
 
@@ -59,7 +59,7 @@ export default function OrigemDoPaciente({ contactId }: { contactId: string }) {
     setC(ct);
     if (!ct) return;
 
-    const [p, an, ind, filhos, msgs, cons, deals, procs, ativ] = await Promise.all([
+    const [p, an, ind, filhos, msgs, cons, deals, procs, ativ, posv] = await Promise.all([
       ct.origem_post_id ? supabase.from("redes_posts").select("id, legenda, thumbnail_url, url, visualizacoes, alcance, curtidas, comentarios, publicado_em").eq("id", ct.origem_post_id).maybeSingle() : Promise.resolve({ data: null }),
       ct.anuncio_id ? supabase.from("anuncios").select("nome, campanha").eq("id", ct.anuncio_id).maybeSingle() : Promise.resolve({ data: null }),
       ct.indicado_por_id ? supabase.from("contacts").select("id, name").eq("id", ct.indicado_por_id).maybeSingle() : Promise.resolve({ data: null }),
@@ -67,8 +67,9 @@ export default function OrigemDoPaciente({ contactId }: { contactId: string }) {
       supabase.from("conversas").select("channel, mensagens(direction, created_at)").eq("contact_id", contactId),
       supabase.from("consultas").select("procedimento, data, hora, status, created_at").eq("contact_id", contactId),
       supabase.from("deals").select("title, value, status, motivo_perda, updated_at, created_at").eq("contact_id", contactId),
-      supabase.from("procedimentos_realizados").select("nome, realizado_em, valor").eq("contact_id", contactId),
+      supabase.from("procedimentos_realizados").select("nome, realizado_em, valor, retorno_em, retorno_status").eq("contact_id", contactId),
       supabase.from("activities").select("description, created_at").eq("contact_id", contactId).ilike("description", "%detectada%"),
+      supabase.from("pos_venda").select("procedimento, ultimo_checkin_at, satisfacao").eq("contact_id", contactId),
     ]);
     setPost((p.data as Post) ?? null);
     setAnuncio((an.data as { nome: string; campanha: string | null }) ?? null);
@@ -93,14 +94,31 @@ export default function OrigemDoPaciente({ contactId }: { contactId: string }) {
         });
     }
     for (const x of (cons.data ?? []) as { procedimento: string | null; data: string; hora: string | null; status: string; created_at: string }[]) {
-      ev.push({ quando: x.created_at, titulo: `Agendou ${x.procedimento ?? "consulta"}`, detalhe: `${new Date(x.data + "T12:00:00").toLocaleDateString("pt-BR")}${x.hora ? ` às ${x.hora}` : ""} · ${x.status}`, Icone: CalendarCheck, cor: "text-violet-300" });
+      const dia = `${new Date(x.data + "T12:00:00").toLocaleDateString("pt-BR")}${x.hora ? ` às ${x.hora}` : ""}`;
+      ev.push({ quando: x.created_at, titulo: `Agendou ${x.procedimento ?? "consulta"}`, detalhe: dia, Icone: CalendarCheck, cor: "text-violet-300" });
+      const quando = `${x.data}T${(x.hora ?? "12:00").padStart(5, "0")}:00`;
+      if (x.status === "confirmada") ev.push({ quando, titulo: "Confirmou presença", detalhe: dia, Icone: CalendarCheck, cor: "text-accent" });
+      if (x.status === "realizada") ev.push({ quando, titulo: "Veio à clínica", detalhe: x.procedimento ?? undefined, Icone: MapPin, cor: "text-emerald-300" });
+      if (x.status === "faltou") ev.push({ quando, titulo: "Faltou", detalhe: dia, Icone: XCircle, cor: "text-amber-300" });
+      if (x.status === "cancelada") ev.push({ quando, titulo: "Cancelou", detalhe: dia, Icone: XCircle, cor: "text-red-300" });
     }
     for (const d of (deals.data ?? []) as { title: string; value: number; status: string; motivo_perda: string | null; updated_at: string }[]) {
       if (d.status === "won") ev.push({ quando: d.updated_at, titulo: `Fechou: ${d.title}`, detalhe: brl(Number(d.value)), Icone: Trophy, cor: "text-accent" });
       if (d.status === "lost") ev.push({ quando: d.updated_at, titulo: "Não fechou", detalhe: d.motivo_perda ?? undefined, Icone: XCircle, cor: "text-red-300" });
     }
-    for (const x of (procs.data ?? []) as { nome: string; realizado_em: string; valor: number }[]) {
+    const hoje = new Date().toISOString().slice(0, 10);
+    for (const x of (procs.data ?? []) as { nome: string; realizado_em: string; valor: number; retorno_em: string | null; retorno_status: string }[]) {
       ev.push({ quando: x.realizado_em + "T12:00:00", titulo: `Fez ${x.nome}`, detalhe: Number(x.valor) ? brl(Number(x.valor)) : undefined, Icone: Syringe, cor: "text-emerald-300" });
+      if (x.retorno_em) {
+        const q = x.retorno_em + "T12:00:00";
+        if (x.retorno_status === "feito") ev.push({ quando: q, titulo: `Voltou no retorno (${x.nome})`, Icone: RotateCcw, cor: "text-accent" });
+        else if (x.retorno_status === "agendado") ev.push({ quando: q, titulo: `Retorno agendado (${x.nome})`, Icone: CalendarCheck, cor: "text-violet-300" });
+        else if (x.retorno_status === "nao_vai") ev.push({ quando: q, titulo: `Não vai voltar (${x.nome})`, Icone: XCircle, cor: "text-red-300" });
+        else ev.push({ quando: q, titulo: x.retorno_em < hoje ? `Retorno atrasado (${x.nome})` : `Próximo retorno (${x.nome})`, Icone: RotateCcw, cor: x.retorno_em < hoje ? "text-red-300" : "text-muted" });
+      }
+    }
+    for (const pv of (posv.data ?? []) as { procedimento: string | null; ultimo_checkin_at: string | null; satisfacao: string }[]) {
+      if (pv.ultimo_checkin_at) ev.push({ quando: pv.ultimo_checkin_at, titulo: "Acompanhamento do pós-venda", detalhe: pv.satisfacao === "satisfeito" ? "Satisfeito" : pv.satisfacao === "insatisfeito" ? "Insatisfeito" : undefined, Icone: HeartHandshake, cor: "text-emerald-300" });
     }
     for (const a of (ativ.data ?? []) as { description: string; created_at: string }[]) {
       ev.push({ quando: a.created_at, titulo: "Venda registrada sozinha pela IA", detalhe: a.description, Icone: Sparkles, cor: "text-accent" });
