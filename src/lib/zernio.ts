@@ -113,6 +113,16 @@ export function zernio(chave: string) {
   return {
     contas: () => chamar<{ accounts: ZernioConta[]; hasAnalyticsAccess?: boolean }>("/accounts"),
 
+    /** Automações "comentou a palavra → recebe no direct". */
+    automacoes: () =>
+      chamar<{ automations?: { id: string; name?: string; platform?: string; accountId?: string; platformPostId?: string; keywords?: string[]; matchMode?: string; dmMessage?: string; commentReply?: string; isActive?: boolean; stats?: Record<string, number>; createdAt?: string }[] }>(
+        "/comment-automations"
+      ),
+    criarAutomacao: (corpo: Record<string, unknown>) =>
+      chamar<{ automation?: { id: string } }>("/comment-automations", { method: "POST", body: JSON.stringify(corpo) }),
+    mudarAutomacao: (id: string, corpo: Record<string, unknown>) =>
+      chamar<{ automation?: { id: string } }>(`/comment-automations/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(corpo) }),
+
     /** Posts com comentários (mais recentes primeiro). */
     postsComentados: (p: { accountId: string; limit?: number; cursor?: string }) => {
       const q = new URLSearchParams({ accountId: p.accountId, limit: String(Math.min(p.limit ?? 50, 100)) });

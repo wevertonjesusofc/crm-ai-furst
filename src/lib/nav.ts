@@ -23,6 +23,7 @@ export const nav: NavSection[] = [
       { label: "Tráfego e vendas", href: "/marketing/trafego" },
       { label: "Redes sociais", href: "/marketing/redes-sociais" },
       { label: "Social selling", href: "/marketing/social-selling" },
+      { label: "Comenta & Recebe", href: "/marketing/comenta-recebe" },
       { label: "Páginas", href: "/marketing/paginas" },
     ],
   },
