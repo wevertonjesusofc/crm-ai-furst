@@ -1,0 +1,14 @@
+.mcp.json
+node_modules/
+.next/
+.env
+.env.local
+
+# não vai pro GitHub
+AUDITORIA_CRM_AI_FIRST.txt
+_backup_*.tar.gz
+._*
+.DS_Store
+.claude/
+tsconfig.tsbuildinfo
+.env*.local
