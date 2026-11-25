@@ -63,7 +63,7 @@ export default function CadastroPage() {
   }
 
   return (
-    <AuthCard titulo="Criar conta da clínica" subtitulo="Em um minuto o sistema comercial da sua clínica fica pronto.">
+    <AuthCard titulo="Criar conta da clínica" subtitulo="Em um minuto o sistema operacional da sua clínica fica pronto.">
       <form onSubmit={criar} className="space-y-4">
         <div>
           <label htmlFor="cad-nome" className={labelClass}>Seu nome</label>

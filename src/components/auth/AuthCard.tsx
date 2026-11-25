@@ -14,7 +14,7 @@ export default function AuthCard({
           <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center text-bg font-bold">A</div>
           <div>
             <div className="font-semibold text-white leading-none">CRM AURA</div>
-            <div className="text-[10px] text-muted tracking-wide">SISTEMA COMERCIAL · AI FIRST</div>
+            <div className="text-[10px] text-muted tracking-wide">SISTEMA OPERACIONAL · AI FIRST</div>
           </div>
         </div>
         <h1 className="text-2xl font-semibold text-white mb-1">{titulo}</h1>

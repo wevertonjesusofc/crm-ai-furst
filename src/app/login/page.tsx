@@ -31,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthCard titulo="Entrar" subtitulo="Acesse o sistema comercial da sua clínica.">
+    <AuthCard titulo="Entrar" subtitulo="Acesse o sistema operacional da sua clínica.">
       <form onSubmit={entrar} className="space-y-4">
         <div>
           <label htmlFor="login-email" className={labelClass}>E-mail</label>

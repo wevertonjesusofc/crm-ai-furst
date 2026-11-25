@@ -21,6 +21,12 @@ Rode na ordem, colando o arquivo inteiro e clicando em **Run**:
 
 Na sua instalação atual (que já tem 001 a 016), rode só **017, 018, 019 e 020**.
 
+Num projeto **novo e vazio**, use o arquivo único `instalar_completo_001_a_020.sql`.
+
+**Atenção aos acentos:** abra o arquivo num editor e copie de lá, ou copie pelo terminal com
+`LANG=en_US.UTF-8 pbcopy < instalar_completo_001_a_020.sql`. O `pbcopy` sem o `LANG` embaralha acentos e emojis.
+Se isso já aconteceu, rode `corrigir_acentos.sql`.
+
 ## 2. Variáveis do `.env.local` (e no Vercel: Settings › Environment Variables)
 
 | Variável | Onde pegar |
