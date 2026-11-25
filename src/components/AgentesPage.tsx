@@ -49,7 +49,7 @@ const TEMPLATES = [
     nome: "Gestor de Time",
     emoji: "🧭",
     tier: "manager" as Tier,
-    proposito: "Monitora pendências do time (tarefas atrasadas, no-shows, deals parados) e cobra no grupo.",
+    proposito: "Monitora pendências do time (tarefas atrasadas, no-shows, oportunidades paradas) e cobra no grupo.",
   },
   {
     nome: "Heitor — Estrategista de Conteúdo",

@@ -47,7 +47,7 @@ export default function ComissoesPanel() {
   return (
     <div>
       <h2 className="text-white text-lg font-medium mb-1">Comissões</h2>
-      <p className="text-muted text-sm mb-4">Defina o percentual de comissão sobre deals ganhos. O cálculo é automático a partir do Pipeline.</p>
+      <p className="text-muted text-sm mb-4">Defina o percentual de comissão sobre vendas ganhas. O cálculo é automático a partir do Funil de vendas.</p>
 
       <div className="grid grid-cols-4 gap-3 mb-4">
         <div className="bg-panel border border-border rounded-lg p-4">
@@ -83,7 +83,7 @@ export default function ComissoesPanel() {
         </h3>
         <div className="flex items-end gap-2">
           <div>
-            <label className="text-[11px] text-muted">Percentual sobre deal ganho</label>
+            <label className="text-[11px] text-muted">Percentual sobre venda ganha</label>
             <input type="number" value={percentual} onChange={(e) => setPercentual(e.target.value)} className="w-32 bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1" />
           </div>
           <button onClick={salvarRegra} className="bg-accent text-bg text-sm font-medium px-4 py-2 rounded-md">
@@ -95,7 +95,7 @@ export default function ComissoesPanel() {
       <div className="bg-panel border border-border rounded-lg p-4">
         <h3 className="text-white text-sm font-medium mb-3">Comissões calculadas</h3>
         {deals.length === 0 ? (
-          <div className="py-10 text-center text-muted text-sm">Nenhuma comissão encontrada — feche deals no Pipeline pra ver aqui.</div>
+          <div className="py-10 text-center text-muted text-sm">Nenhuma comissão encontrada — feche vendas no Funil pra ver aqui.</div>
         ) : (
           <div className="divide-y divide-border">
             {deals.map((d) => (

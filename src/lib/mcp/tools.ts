@@ -359,6 +359,25 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "jornada_do_paciente",
+    description:
+      "Mostra a jornada dos pacientes do período: quantos chegaram (e de onde), foram atendidos, agendaram avaliação, fecharam (e por que não fecharam), fizeram procedimento e voltaram no retorno (e por que não voltaram). Aponta o maior vazamento.",
+    inputSchema: { type: "object", properties: { dias: { type: "number", description: "Período em dias. Padrão 30." } } },
+    run: async (db, ctx, args) => {
+      const dias = Math.min(Math.max(Number(args.dias) || 30, 1), 365);
+      const { calcularJornada } = await import("@/lib/jornada");
+      const j = await calcularJornada(db, new Date(Date.now() - dias * 86400000).toISOString(), ctx.clinicaId);
+      if (!j.etapas.length) return `Nenhum paciente novo nos últimos ${dias} dias em ${ctx.clinicaNome}.`;
+      const linhas = [`Jornada dos últimos ${dias} dias em ${ctx.clinicaNome}:`];
+      for (const e of j.etapas) {
+        linhas.push(`- ${e.titulo}: ${e.total}`);
+        for (const d of (e.detalhe ?? []).slice(0, 4)) linhas.push(`    · ${d.rotulo}: ${d.n}`);
+      }
+      if (j.maiorVazamento) linhas.push(`Maior vazamento: ${j.maiorVazamento.perdidos} entre "${j.maiorVazamento.de}" e "${j.maiorVazamento.para}".`);
+      return linhas.join("\n");
+    },
+  },
+  {
     name: "definir_meta_mensal",
     description: "Define a meta de faturamento do mês da clínica (em reais). Ela aparece no Dashboard para o time ver quanto falta.",
     inputSchema: { type: "object", properties: { valor: { type: "number" } }, required: ["valor"] },

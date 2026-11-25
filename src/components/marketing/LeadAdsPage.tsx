@@ -19,7 +19,7 @@ export default function LeadAdsPage() {
         {[
           { label: "Páginas conectadas", icon: Facebook },
           { label: "Formulários ativos", icon: FileText },
-          { label: "Leads recebidos", icon: Users },
+          { label: "Interessados recebidos", icon: Users },
           { label: "Erros", icon: AlertTriangle },
         ].map((s) => (
           <div key={s.label} className="bg-panel border border-border rounded-lg p-4">

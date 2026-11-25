@@ -34,13 +34,13 @@ export default function AdminPage() {
 
   async function entrar(clinicaId: string) {
     await supabase.from("admin_contexto").upsert({ user_id: uid, clinica_id: clinicaId, updated_at: new Date().toISOString() });
-    router.push("/comercial/dashboard");
+    router.push("/inicio");
     router.refresh();
   }
 
   async function voltarParaMinha() {
     await supabase.from("admin_contexto").delete().eq("user_id", uid);
-    router.push("/comercial/dashboard");
+    router.push("/inicio");
     router.refresh();
   }
 

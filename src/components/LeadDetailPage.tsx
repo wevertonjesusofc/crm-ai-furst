@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import FichaClinicaTab from "@/components/paciente/FichaClinicaTab";
+import { MOTIVOS_PERDA } from "@/lib/jornada";
 
 type Contact = {
   id: string;
@@ -146,7 +147,7 @@ export default function LeadDetailPage({
   const [contact, setContact] = useState(initialContact);
   const [deals, setDeals] = useState(initialDeals);
   const [tasks, setTasks] = useState(initialTasks);
-  const [tab, setTab] = useState<Tab>("Timeline");
+  const [tab, setTab] = useState<Tab>("Ficha clínica");
   const [timelineFilter, setTimelineFilter] = useState<"Todos" | "Comercial" | "CS">("Todos");
   const [taskFilter, setTaskFilter] = useState<"pendentes" | "concluidas">("pendentes");
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -191,11 +192,26 @@ export default function LeadDetailPage({
   }
 
   async function setDealOutcome(dealId: string, outcome: "won" | "lost") {
-    const stageId = outcome === "won" ? ganhoStage?.id : perdidoStage?.id;
+    if (outcome === "lost") {
+      setMotivoPara(dealId);
+      return;
+    }
+    const stageId = ganhoStage?.id;
     setDeals((prev) =>
       prev.map((d) => (d.id === dealId ? { ...d, status: outcome, stage_id: stageId ?? d.stage_id } : d))
     );
     await supabase.from("deals").update({ status: outcome, stage_id: stageId }).eq("id", dealId);
+  }
+
+  // Perdeu: o sistema pergunta o motivo, para a jornada mostrar por que não fecham.
+  const [motivoPara, setMotivoPara] = useState<string | null>(null);
+  async function confirmarPerda(motivo: string) {
+    if (!motivoPara) return;
+    const stageId = perdidoStage?.id;
+    const dealId = motivoPara;
+    setDeals((prev) => prev.map((d) => (d.id === dealId ? { ...d, status: "lost", stage_id: stageId ?? d.stage_id } : d)));
+    await supabase.from("deals").update({ status: "lost", stage_id: stageId, motivo_perda: motivo }).eq("id", dealId);
+    setMotivoPara(null);
   }
 
   async function addTask() {
@@ -330,7 +346,7 @@ export default function LeadDetailPage({
         </div>
         <div className="bg-panel border border-border rounded-lg p-3 text-center">
           <div className="text-xl font-semibold text-white">{deals.length}</div>
-          <div className="text-[11px] text-muted">Deals</div>
+          <div className="text-[11px] text-muted">Vendas</div>
         </div>
         <div className="bg-panel border border-border rounded-lg p-3 text-center">
           <div className="text-xl font-semibold text-white">{noFunilDias}d</div>
@@ -644,7 +660,7 @@ export default function LeadDetailPage({
                 {deals.filter((d) => d.status === "won").length === 0 ? (
                   <>
                     <Wallet size={26} className="text-muted mx-auto mb-2" />
-                    <p className="text-muted text-sm">Nenhum deal fechado ainda</p>
+                    <p className="text-muted text-sm">Nenhuma venda fechada ainda</p>
                   </>
                 ) : (
                   <div className="text-left space-y-2">
@@ -667,6 +683,20 @@ export default function LeadDetailPage({
                   <CreditCard size={24} className="text-muted mx-auto mb-2" />
                   <p className="text-muted text-sm">Nenhum pagamento registrado</p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {motivoPara && (
+            <div className="mb-4 bg-panel border border-amber-500/40 rounded-lg p-4">
+              <div className="text-white text-sm font-medium mb-2">Por que não fechou?</div>
+              <div className="flex flex-wrap gap-2">
+                {MOTIVOS_PERDA.map((m) => (
+                  <button key={m} onClick={() => confirmarPerda(m)} className="text-xs border border-border rounded-full px-3 py-1.5 text-white hover:border-accent">
+                    {m}
+                  </button>
+                ))}
+                <button onClick={() => setMotivoPara(null)} className="text-xs text-muted px-2">Cancelar</button>
               </div>
             </div>
           )}

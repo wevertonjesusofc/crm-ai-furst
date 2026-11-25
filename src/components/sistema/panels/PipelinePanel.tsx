@@ -51,14 +51,14 @@ export default function PipelinePanel() {
   }
 
   async function remover(id: string) {
-    if (!confirm("Excluir esta etapa? Deals nela ficarão sem etapa.")) return;
+    if (!confirm("Excluir esta etapa? As oportunidades nela ficarão sem etapa.")) return;
     await supabase.from("pipeline_stages").delete().eq("id", id);
     load();
   }
 
   return (
     <div>
-      <h2 className="text-white text-lg font-medium mb-1">Pipeline</h2>
+      <h2 className="text-white text-lg font-medium mb-1">Funil de vendas</h2>
       <p className="text-muted text-sm mb-4">Defina as etapas do seu funil de vendas. Cada etapa representa uma fase da negociação.</p>
 
       <div className="bg-panel border border-border rounded-lg p-5">

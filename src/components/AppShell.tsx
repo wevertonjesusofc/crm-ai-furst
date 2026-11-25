@@ -28,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (estado === "deslogado" && !publica) router.replace("/login");
-    if (estado === "logado" && publica) router.replace("/comercial/dashboard");
+    if (estado === "logado" && publica) router.replace("/inicio");
   }, [estado, publica, router]);
 
   useEffect(() => {

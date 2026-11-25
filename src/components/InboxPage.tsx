@@ -199,7 +199,7 @@ export default function InboxPage() {
     <div className="mx-8 pt-8 pb-8">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Inbox</h1>
+          <h1 className="text-2xl font-semibold text-white">Conversas</h1>
           <p className="text-muted text-xs flex items-center gap-1.5 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" /> Em tempo real
           </p>

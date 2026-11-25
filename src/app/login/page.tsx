@@ -27,7 +27,7 @@ export default function LoginPage() {
       );
       return;
     }
-    router.replace("/comercial/dashboard");
+    router.replace("/inicio");
   }
 
   return (

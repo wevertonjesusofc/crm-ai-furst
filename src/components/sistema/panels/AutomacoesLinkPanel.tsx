@@ -18,7 +18,7 @@ export default function AutomacoesLinkPanel() {
           </span>
           <div>
             <div className="text-white text-sm font-medium">Ir para Marketing &gt; Automações</div>
-            <p className="text-muted text-xs">Fluxos visuais disparados por gatilhos (lead novo, deal ganho, etc).</p>
+            <p className="text-muted text-xs">Fluxos visuais disparados por gatilhos (novo paciente interessado, venda ganha etc.).</p>
           </div>
         </div>
         <ArrowRight size={16} className="text-muted" />

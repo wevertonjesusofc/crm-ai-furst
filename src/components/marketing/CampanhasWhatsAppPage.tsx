@@ -34,7 +34,7 @@ export default function CampanhasWhatsAppPage() {
   const stats = [
     { label: "Total Campanhas", value: campanhas.length, icon: Send },
     { label: "Ativas", value: campanhas.filter((c) => c.status === "ativa").length, icon: Megaphone },
-    { label: "Leads Contactados", value: campanhas.reduce((s, c) => s + c.leads_contactados, 0), icon: Users },
+    { label: "Interessados contatados", value: campanhas.reduce((s, c) => s + c.leads_contactados, 0), icon: Users },
     { label: "Responderam", value: campanhas.reduce((s, c) => s + c.responderam, 0), icon: MessageSquare },
     { label: "Taxa Resposta Média", value: "0%", icon: BarChart3 },
     { label: "Bloqueados", value: 0, icon: Ban },

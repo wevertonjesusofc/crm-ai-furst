@@ -45,7 +45,7 @@ const STATUS_FILTERS: ("todos" | Status)[] = ["todos", "em_recuperacao", "recupe
 const STATUS_LABEL: Record<Status, string> = {
   em_recuperacao: "Em Recuperação",
   recuperado: "Recuperado",
-  enviado_pipeline: "Enviado ao Pipeline",
+  enviado_pipeline: "Enviado ao funil",
 };
 
 function daysSince(dateStr: string) {

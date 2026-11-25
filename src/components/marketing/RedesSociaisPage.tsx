@@ -10,7 +10,7 @@ const STATS = [
   { label: "Engajamento", icon: Heart },
   { label: "Visualizações", icon: PlayCircle },
   { label: "Novos seguidores", icon: UserPlus },
-  { label: "Leads gerados", icon: Target },
+  { label: "Interessados", icon: Target },
 ];
 
 const REDES = [

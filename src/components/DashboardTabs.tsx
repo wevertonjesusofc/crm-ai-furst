@@ -199,7 +199,7 @@ function GeralTab({ contactsCount, stages, openValue, ticketMedio, openCount }: 
           </div>
         </Panel>
 
-        <Panel title="Funil Pipeline" icon={<BarChart3 size={16} className="text-accent" />}>
+        <Panel title="Funil de vendas" icon={<BarChart3 size={16} className="text-accent" />}>
           <div className="space-y-2.5">
             {stages.length === 0 && <p className="text-muted text-sm">Nenhum estágio configurado ainda.</p>}
             {stages.map((s, i) => {
@@ -247,7 +247,7 @@ function GeralTab({ contactsCount, stages, openValue, ticketMedio, openCount }: 
         </Panel>
 
         <Panel
-          title="Leads sem Ação"
+          title="Interessados sem resposta"
           icon={<AlertTriangle size={16} className="text-accent" />}
           right={<span className="text-white text-sm font-medium">0</span>}
         >
@@ -434,7 +434,7 @@ function PreVendasTab({ contactsCount }: Props) {
           to="to-purple-500"
         />
         <StatCard
-          label="Leads Novos"
+          label="Novos interessados"
           value={String(contactsCount)}
           sub="criados no período"
           icon={<UserPlus size={16} />}
@@ -537,7 +537,7 @@ function PreVendasTab({ contactsCount }: Props) {
           <div className="text-center py-10 text-muted text-sm">Sem agendamentos</div>
         </Panel>
         <Panel
-          title="Leads por Origem"
+          title="Interessados por origem"
           icon={<Users size={16} className="text-accent" />}
           right={<span className="text-[10px] bg-panelmuted text-muted px-2 py-0.5 rounded-full">{contactsCount} total</span>}
         >

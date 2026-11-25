@@ -58,7 +58,7 @@ export default function AutomacoesPage() {
             <label className="text-[11px] text-muted uppercase tracking-wide">Gatilho</label>
             <select value={gatilho} onChange={(e) => setGatilho(e.target.value)} className="w-full bg-panel border border-border rounded px-3 py-2 text-sm text-white mt-1 mb-4">
               <option value="lead_criado">Lead criado</option>
-              <option value="deal_ganho">Deal ganho</option>
+              <option value="deal_ganho">Venda ganha</option>
               <option value="consulta_agendada">Consulta agendada</option>
               <option value="pos_venda_satisfeito">Pós-venda satisfeito</option>
             </select>
@@ -91,7 +91,7 @@ export default function AutomacoesPage() {
                 </span>
                 <span className="text-accent text-[11px] font-medium uppercase tracking-wide">Gatilho</span>
               </div>
-              <div className="text-white font-medium">{gatilho === "lead_criado" ? "Lead criado" : gatilho}</div>
+              <div className="text-white font-medium">{gatilho === "lead_criado" ? "Interessado cadastrado" : gatilho}</div>
               <p className="text-muted text-sm mt-1">Quando a condição acontecer</p>
             </div>
           </div>

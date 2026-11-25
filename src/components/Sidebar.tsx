@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { nav } from "@/lib/nav";
+import { nav, navAvancado } from "@/lib/nav";
 import { supabase } from "@/lib/supabase";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [modulosDesativados, setModulosDesativados] = useState<string[]>([]);
   const [perfil, setPerfil] = useState({ nome: "", cargo: "" });
+  const [avancado, setAvancado] = useState(false);
 
   useEffect(() => {
     supabase
@@ -30,10 +31,10 @@ export default function Sidebar() {
   return (
     <aside className="w-60 shrink-0 bg-panel border-r border-border h-screen sticky top-0 overflow-y-auto text-sm">
       <div className="px-4 py-4 flex items-center gap-2 border-b border-border">
-        <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center text-bg font-bold">A</div>
+        <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center text-bg font-bold">P</div>
         <div>
-          <div className="font-semibold text-white leading-none">CRM AURA</div>
-          <div className="text-[10px] text-muted tracking-wide">SAÚDE · CONTROL TOWER</div>
+          <div className="font-semibold text-white leading-none">Prontto AI</div>
+          <div className="text-[10px] text-muted tracking-wide">SISTEMA OPERACIONAL</div>
         </div>
       </div>
 
@@ -68,6 +69,31 @@ export default function Sidebar() {
             </div>
           </div>
         ))}
+
+        <div className="px-4">
+          <button
+            onClick={() => setAvancado((v) => !v)}
+            className="w-full flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-muted/70 hover:text-white py-1"
+            aria-expanded={avancado}
+          >
+            Avançado <span>{avancado ? "−" : "+"}</span>
+          </button>
+        </div>
+        {avancado && (
+          <div className="flex flex-col gap-0.5 mt-1">
+            {navAvancado.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-4 py-2 text-[12.5px] border-l-2 ${
+                  pathname === item.href ? "border-accent bg-panelmuted text-white" : "border-transparent text-muted hover:text-white hover:bg-panelmuted"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </nav>
 
       <div className="px-4 py-3 border-t border-border text-muted">

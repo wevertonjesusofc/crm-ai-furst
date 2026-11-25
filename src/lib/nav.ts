@@ -1,66 +1,71 @@
 export type NavItem = { label: string; href: string };
 export type NavSection = { title: string; items: NavItem[] };
 
+// Menu principal: só o que o dono da clínica usa no dia a dia.
 export const nav: NavSection[] = [
   {
-    title: "Comercial",
-    items: [
-      { label: "Cockpit", href: "/comercial/cockpit" },
-      { label: "Dashboard", href: "/comercial/dashboard" },
-      { label: "Pós-Vendas", href: "/comercial/pos-vendas" },
-      { label: "Pipeline", href: "/comercial/pipeline" },
-      { label: "Consultas", href: "/comercial/consultas" },
-      { label: "Inbox", href: "/comercial/inbox" },
-      { label: "Treinamento", href: "/comercial/treinamento" },
-    ],
+    title: "Início",
+    items: [{ label: "Como tá meu dia", href: "/inicio" }],
   },
   {
-    title: "Prospecção",
-    items: [{ label: "Descobrir Leads", href: "/prospeccao" }],
-  },
-  {
-    title: "Agentes IA",
+    title: "Pacientes",
     items: [
-      { label: "Meus Agentes", href: "/agentes" },
-      { label: "Habilidades", href: "/agentes/habilidades" },
-      { label: "Credenciais", href: "/agentes/credenciais" },
-      { label: "Organograma", href: "/agentes/organograma" },
+      { label: "Pacientes", href: "/pacientes" },
+      { label: "Funil de vendas", href: "/comercial/pipeline" },
+      { label: "Agenda", href: "/comercial/consultas" },
+      { label: "Pós-venda", href: "/comercial/pos-vendas" },
+      { label: "Conversas", href: "/comercial/inbox" },
     ],
   },
   {
     title: "Marketing",
     items: [
-      { label: "Visão Geral", href: "/marketing" },
-      { label: "Tráfego e Vendas", href: "/marketing/trafego" },
-      { label: "Canais de Entrada", href: "/marketing/canais-entrada" },
+      { label: "Tráfego e vendas", href: "/marketing/trafego" },
+      { label: "Redes sociais", href: "/marketing/redes-sociais" },
       { label: "Páginas", href: "/marketing/paginas" },
-      { label: "Redes Sociais", href: "/marketing/redes-sociais" },
-      { label: "Formulários", href: "/marketing/formularios" },
-      { label: "Lead Ads", href: "/marketing/lead-ads" },
-      { label: "Importar Leads", href: "/marketing/importar-leads" },
-      { label: "Campanhas Email", href: "/marketing/campanhas-email" },
-      { label: "Campanhas WhatsApp", href: "/marketing/campanhas-whatsapp" },
-      { label: "Automações", href: "/marketing/automacoes" },
-      { label: "Templates Email", href: "/marketing/templates-email" },
-      { label: "Templates WhatsApp", href: "/marketing/templates-whatsapp" },
     ],
   },
   {
-    title: "Gestão",
+    title: "Agentes IA",
     items: [
-      { label: "Tarefas", href: "/gestao/tarefas" },
-      { label: "Reuniões", href: "/gestao/reunioes" },
+      { label: "Organograma", href: "/agentes/organograma" },
+      { label: "Meus agentes", href: "/agentes" },
+      { label: "Treinar pelo Claude", href: "/sistema/conectar-ia" },
     ],
   },
   {
-    title: "Meu Espaço",
-    items: [{ label: "Meu WhatsApp", href: "/meu-whatsapp" }],
+    title: "Equipe",
+    items: [
+      { label: "Treinamento", href: "/comercial/treinamento" },
+      { label: "Tarefas", href: "/gestao/tarefas" },
+    ],
   },
   {
     title: "Sistema",
     items: [
-      { label: "Conectar minha IA", href: "/sistema/conectar-ia" },
+      { label: "Conexões", href: "/conexoes" },
       { label: "Configurações", href: "/sistema/configuracoes" },
     ],
   },
+];
+
+// Telas que continuam existindo, mas ficam guardadas em "Avançado".
+export const navAvancado: NavItem[] = [
+  { label: "Cockpit", href: "/comercial/cockpit" },
+  { label: "Painel comercial", href: "/comercial/dashboard" },
+  { label: "Descobrir pacientes", href: "/prospeccao" },
+  { label: "Visão geral do marketing", href: "/marketing" },
+  { label: "Canais de entrada", href: "/marketing/canais-entrada" },
+  { label: "Formulários", href: "/marketing/formularios" },
+  { label: "Anúncios de cadastro (Lead Ads)", href: "/marketing/lead-ads" },
+  { label: "Importar contatos", href: "/marketing/importar-leads" },
+  { label: "Campanhas de e-mail", href: "/marketing/campanhas-email" },
+  { label: "Campanhas de WhatsApp", href: "/marketing/campanhas-whatsapp" },
+  { label: "Automações", href: "/marketing/automacoes" },
+  { label: "Modelos de e-mail", href: "/marketing/templates-email" },
+  { label: "Modelos de WhatsApp", href: "/marketing/templates-whatsapp" },
+  { label: "Habilidades dos agentes", href: "/agentes/habilidades" },
+  { label: "Credenciais dos agentes", href: "/agentes/credenciais" },
+  { label: "Reuniões", href: "/gestao/reunioes" },
+  { label: "Meu WhatsApp", href: "/meu-whatsapp" },
 ];

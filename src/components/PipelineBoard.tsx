@@ -161,7 +161,7 @@ export default function PipelineBoard() {
   const sortLabels: Record<SortKey, string> = {
     urgencia: "Urgência",
     recentes: "Mais recentes",
-    valor: "Maior valor deal",
+    valor: "Maior valor",
     faturamento: "Maior faturamento",
     score: "Score do lead",
     tempo: "Tempo na etapa",
@@ -171,7 +171,7 @@ export default function PipelineBoard() {
     <div>
       {/* toolbar */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold text-white">Pipeline</h1>
+        <h1 className="text-2xl font-semibold text-white">Funil de vendas</h1>
         <div className="flex items-center gap-2 relative">
           <button
             onClick={() => setShowNewDeal(true)}
@@ -338,7 +338,7 @@ export default function PipelineBoard() {
           </div>
           <div>
             <div className="text-lg font-semibold text-white leading-none">{dealsAtivos}</div>
-            <div className="text-xs text-muted">Deals ativos</div>
+            <div className="text-xs text-muted">Vendas em aberto</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -464,7 +464,7 @@ export default function PipelineBoard() {
                   {stageDeals.length === 0 && (
                     <div className="text-center py-8">
                       <Target size={22} className="text-muted mx-auto mb-2 opacity-40" />
-                      <p className="text-xs text-muted">Nenhum deal neste estágio</p>
+                      <p className="text-xs text-muted">Nenhuma oportunidade nesta etapa</p>
                       {canAdd && (
                         <button
                           onClick={() => setShowNewDeal(true)}

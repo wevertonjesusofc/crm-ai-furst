@@ -44,7 +44,7 @@ export default function CadastroPage() {
       );
       return;
     }
-    if (data.session) router.replace("/comercial/dashboard");
+    if (data.session) router.replace("/inicio");
     else setConfirmar(true);
   }
 

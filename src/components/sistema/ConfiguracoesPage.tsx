@@ -74,12 +74,11 @@ type Config = {
 };
 
 const MODULO_DESC: Record<string, string> = {
-  Comercial: "Pipeline de vendas, leads, deals, propostas e todo o funil comercial. Inclui Cockpit, Inbox, agenda e treinamento.",
-  Prospecção: "Descoberta de leads com IA (busca + diagnóstico).",
-  "Agentes IA": "Cadastro e organograma dos seus agentes de IA.",
-  Marketing: "Canais de entrada, páginas, formulários, campanhas e automações de marketing.",
-  Gestão: "Tarefas da equipe e reuniões do time.",
-  "Meu Espaço": "Conexão do seu WhatsApp pessoal.",
+  Início: "Resumo do dia e meta do mês.",
+  Pacientes: "Pacientes, funil de vendas, agenda, pós-venda e conversas.",
+  Marketing: "Tráfego e vendas por anúncio, redes sociais e páginas.",
+  "Agentes IA": "Organograma e treino dos agentes de IA.",
+  Equipe: "Treinamento do time e tarefas.",
 };
 
 const CATEGORIES: { title: string; items: { key: string; label: string; Icon: typeof Settings }[] }[] = [
@@ -89,21 +88,7 @@ const CATEGORIES: { title: string; items: { key: string; label: string; Icon: ty
       { key: "modulos", label: "Módulos", Icon: LayoutGrid },
       { key: "perfil", label: "Meu Perfil", Icon: User },
       { key: "aparencia", label: "Aparência", Icon: Palette },
-      { key: "google-calendar", label: "Google Calendar", Icon: Calendar },
-    ],
-  },
-  {
-    title: "Integrações",
-    items: [
-      { key: "redes-sociais", label: "Redes sociais", Icon: Radio },
-      { key: "chaves-api", label: "Inteligência artificial (chaves)", Icon: KeyRound },
-      { key: "whatsapp-uazapi", label: "WhatsApp (UAZAPI)", Icon: MessageSquare },
-      { key: "whatsapp-oficial", label: "WhatsApp Oficial (Cloud)", Icon: MessageSquare },
-      { key: "telefonia", label: "Telefonia (VoIP)", Icon: Phone },
-      { key: "email-marketing", label: "Email Marketing", Icon: Mail },
-      { key: "meta-ads", label: "Meta Ads / Lead Ads", Icon: Send },
-      { key: "google-ads", label: "Google Ads", Icon: Send },
-    ],
+          ],
   },
   {
     title: "Comercial",

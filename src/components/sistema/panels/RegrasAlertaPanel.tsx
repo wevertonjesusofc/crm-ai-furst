@@ -98,9 +98,9 @@ export default function RegrasAlertaPanel() {
               </button>
             </div>
             <label className="text-[11px] text-muted">Nome</label>
-            <input value={form.nome} onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} placeholder="Ex: Deal parado" autoFocus className="w-full bg-bg border border-accent rounded px-3 py-2 text-sm text-white mt-1 mb-3" />
+            <input value={form.nome} onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} placeholder="Ex: Oportunidade parada" autoFocus className="w-full bg-bg border border-accent rounded px-3 py-2 text-sm text-white mt-1 mb-3" />
             <label className="text-[11px] text-muted">Condição</label>
-            <input value={form.condicao} onChange={(e) => setForm((f) => ({ ...f, condicao: e.target.value }))} placeholder="Ex: Deal sem atualização há 3 dias" className="w-full bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1 mb-3" />
+            <input value={form.condicao} onChange={(e) => setForm((f) => ({ ...f, condicao: e.target.value }))} placeholder="Ex: Oportunidade parada há 3 dias" className="w-full bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1 mb-3" />
             <label className="text-[11px] text-muted">Canal</label>
             <select value={form.canal} onChange={(e) => setForm((f) => ({ ...f, canal: e.target.value }))} className="w-full bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1 mb-4">
               <option value="interno">Notificação interna</option>

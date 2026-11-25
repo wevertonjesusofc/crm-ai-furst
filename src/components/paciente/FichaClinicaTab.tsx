@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ClipboardList, Coffee, HeartPulse, Plus, Receipt, ShieldCheck, Syringe, CalendarClock, Target } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { MODELOS, ESPECIALIDADES, Especialidade, sugerirRetorno } from "@/lib/anamnese";
+import { MOTIVOS_NAO_RETORNO } from "@/lib/jornada";
 
 type Ficha = {
   data_nascimento: string | null;
@@ -17,7 +18,7 @@ type Ficha = {
   utm_campaign: string | null;
   anuncio_id: string | null;
 };
-type Procedimento = { id: string; nome: string; realizado_em: string; profissional: string | null; produto_lote: string | null; valor: number; retorno_em: string | null; retorno_status: string };
+type Procedimento = { id: string; nome: string; realizado_em: string; profissional: string | null; produto_lote: string | null; valor: number; retorno_em: string | null; retorno_status: string; motivo_nao_retorno: string | null };
 type Orcamento = { id: string; descricao: string; valor: number; status: string; enviado_em: string };
 type Anamnese = { id: string; modelo: string; respostas: Record<string, string>; created_at: string };
 
@@ -102,7 +103,12 @@ export default function FichaClinicaTab({ contactId }: { contactId: string }) {
   }
 
   async function mudarRetorno(id: string, status: string) {
-    await supabase.from("procedimentos_realizados").update({ retorno_status: status }).eq("id", id);
+    await supabase.from("procedimentos_realizados").update({ retorno_status: status, ...(status === "nao_vai" ? {} : { motivo_nao_retorno: null }) }).eq("id", id);
+    carregar();
+  }
+
+  async function motivoNaoRetorno(id: string, motivo: string) {
+    await supabase.from("procedimentos_realizados").update({ motivo_nao_retorno: motivo || null }).eq("id", id);
     carregar();
   }
 
@@ -238,6 +244,12 @@ export default function FichaClinicaTab({ contactId }: { contactId: string }) {
                       <option value="agendado">Agendado</option>
                       <option value="feito">Feito</option>
                       <option value="nao_vai">Não vai voltar</option>
+                    </select>
+                  )}
+                  {p.retorno_status === "nao_vai" && (
+                    <select aria-label="Por que não vai voltar" value={p.motivo_nao_retorno ?? ""} onChange={(e) => motivoNaoRetorno(p.id, e.target.value)} className="bg-bg border border-amber-500/40 rounded px-2 py-1 text-xs text-white">
+                      <option value="">Por quê?</option>
+                      {MOTIVOS_NAO_RETORNO.map((m) => <option key={m} value={m}>{m}</option>)}
                     </select>
                   )}
                 </div>

@@ -118,7 +118,7 @@ export default function RegrasTab({ agenteId }: { agenteId: string }) {
                   className="w-full bg-panel border border-border rounded px-3 py-2 text-sm text-white mt-1 mb-2"
                 >
                   <option value="lead_mensagem">💬 Lead enviou mensagem</option>
-                  <option value="deal_parado">Deal sem atualização</option>
+                  <option value="deal_parado">Oportunidade parada</option>
                   <option value="consulta_agendada">Consulta agendada</option>
                 </select>
                 <label className="text-[11px] text-muted">Palavras-chave (regex)</label>
