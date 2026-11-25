@@ -1,7 +1,8 @@
 import VitrineProntto from "./VitrineProntto";
 
 // Entrada da ferramenta: a Prontto no canto esquerdo (marca + formulário) e,
-// no resto da tela, a vitrine animada mostrando o que o sistema faz.
+// no resto da tela, a vitrine animada. Sem linha dividindo: o painel da
+// esquerda se dissolve em degradê no fundo da vitrine.
 
 export default function AuthCard({
   titulo,
@@ -13,8 +14,16 @@ export default function AuthCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[440px_1fr]">
-      <div className="flex flex-col justify-between px-8 py-10 border-r border-border bg-[#083A2E]/60">
+    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_70%_50%,#0B4A3B_0%,#062A21_55%,#041E18_100%)]">
+      {/* vitrine ocupa a tela toda e some suavemente à esquerda */}
+      <div
+        className="hidden lg:block absolute inset-y-0 right-0 left-[300px]"
+        style={{ maskImage: "linear-gradient(to right, transparent 0%, black 22%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 22%)" }}
+      >
+        <VitrineProntto />
+      </div>
+
+      <div className="relative z-10 flex flex-col justify-between min-h-screen w-full lg:w-[460px] px-8 py-10 bg-[linear-gradient(to_right,rgba(8,58,46,.92)_0%,rgba(8,58,46,.75)_70%,rgba(8,58,46,0)_100%)]">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-bg font-serif text-xl font-bold">P</div>
           <div>
@@ -23,19 +32,15 @@ export default function AuthCard({
           </div>
         </div>
 
-        <div className="w-full max-w-sm mx-auto py-10">
+        <div className="w-full max-w-sm py-10">
           <h1 className="text-4xl font-semibold text-white mb-1">{titulo}</h1>
           <p className="text-muted text-sm mb-6">{subtitulo}</p>
-          <div className="bg-panel border border-border rounded-2xl p-5">{children}</div>
+          <div className="bg-panel/80 backdrop-blur border border-border rounded-2xl p-5">{children}</div>
         </div>
 
-        <p className="text-[11px] text-muted leading-relaxed">
+        <p className="text-[11px] text-muted leading-relaxed max-w-sm">
           Marketing e vendas da clínica num lugar só: de onde vem cada paciente, quem atendeu, o que fechou e quem precisa voltar.
         </p>
-      </div>
-
-      <div className="hidden lg:block relative min-h-screen">
-        <VitrineProntto />
       </div>
     </div>
   );
