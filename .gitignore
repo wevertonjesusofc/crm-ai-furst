@@ -12,3 +12,7 @@ _backup_*.tar.gz
 .claude/
 tsconfig.tsbuildinfo
 .env*.local
+
+# nenhum arquivo de ambiente vai pro GitHub (só o exemplo)
+.env*
+!.env.local.example
