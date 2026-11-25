@@ -16,6 +16,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import UltimasMensagens from "@/components/paciente/UltimasMensagens";
 
 type Satisfacao = "nao_avaliado" | "insatisfeito" | "neutro" | "satisfeito";
 type Status = "em_recuperacao" | "recuperado" | "enviado_pipeline";
@@ -258,7 +259,8 @@ export default function PosVendasPage({ initial }: { initial: PosVenda[] }) {
             const satMeta = SATISFACAO_META[item.satisfacao];
             const SatIcon = satMeta.icon;
             return (
-              <div key={item.id} className="bg-panel border border-border rounded-lg p-3 flex items-center gap-3">
+              <div key={item.id} className="bg-panel border border-border rounded-lg p-3">
+              <div className="flex items-center gap-3">
                 <span className="w-9 h-9 rounded-full bg-accent/20 text-accent flex items-center justify-center text-sm font-semibold shrink-0">
                   {initials(item.paciente_nome)}
                 </span>
@@ -308,6 +310,8 @@ export default function PosVendasPage({ initial }: { initial: PosVenda[] }) {
                     </button>
                   )}
                 </div>
+              </div>
+              <UltimasMensagens contactId={item.contact_id} />
               </div>
             );
           })}

@@ -19,6 +19,9 @@ export type LeadEntrada = {
   click_id?: unknown;
   mensagem?: unknown;
   canal_mensagem?: unknown;
+  /** Direct do Instagram (Zernio): id da pessoa na rede e o @. Precisa da migração 022. */
+  instagram_id?: unknown;
+  instagram_usuario?: unknown;
 };
 
 const s = (v: unknown, max = 300) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -28,7 +31,9 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
   const nome = s(b.nome, 120) ?? "Sem nome";
   const whatsapp = soDigitos(s(b.whatsapp ?? b.telefone, 30));
   const email = s(b.email, 160)?.toLowerCase() ?? null;
-  if (!whatsapp && !email) throw new Error("Mande pelo menos whatsapp ou email.");
+  const instagramId = s(b.instagram_id, 120);
+  const instagramUsuario = s(b.instagram_usuario, 120)?.replace(/^@/, "") ?? null;
+  if (!whatsapp && !email && !instagramId) throw new Error("Mande pelo menos whatsapp ou email.");
 
   let anuncioId: string | null = null;
   const an = b.anuncio && typeof b.anuncio === "object" ? b.anuncio : null;
@@ -45,7 +50,11 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
   }
 
   let contato: { id: string; origem_canal: string | null } | null = null;
-  if (whatsapp) {
+  if (instagramId) {
+    const { data } = await db.from("contacts").select("id, origem_canal").eq("clinica_id", cid).eq("instagram_id", instagramId).limit(1).maybeSingle();
+    contato = data;
+  }
+  if (!contato && whatsapp) {
     const { data } = await db.from("contacts").select("id, origem_canal").eq("clinica_id", cid).eq("whatsapp", whatsapp).limit(1).maybeSingle();
     contato = data;
   }
@@ -67,7 +76,7 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
 
   let novo = false;
   if (!contato) {
-    const { data, error } = await db.from("contacts").insert({ clinica_id: cid, name: nome, whatsapp, email, ...origem }).select("id, origem_canal").single();
+    const { data, error } = await db.from("contacts").insert({ clinica_id: cid, name: nome, whatsapp, email, ...(instagramId ? { instagram_id: instagramId, instagram_usuario: instagramUsuario } : {}), ...origem }).select("id, origem_canal").single();
     if (error) throw new Error(error.message);
     contato = data;
     novo = true;

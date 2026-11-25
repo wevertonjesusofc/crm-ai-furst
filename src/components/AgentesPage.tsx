@@ -15,6 +15,7 @@ import {
   Settings,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import OrganogramaArvore from "@/components/agentes/OrganogramaArvore";
 
 type Tier = "ceo" | "manager" | "specialist";
 
@@ -30,6 +31,8 @@ type Agente = {
   model: string;
   ativo: boolean;
   versao: number;
+  tipo?: "agente" | "pessoa" | null;
+  cargo?: string | null;
 };
 
 const TEMPLATES = [
@@ -100,9 +103,6 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
     load();
   }
 
-  const ceo = agentes.find((a) => a.tier === "ceo");
-  const managers = agentes.filter((a) => a.tier === "manager");
-  const specialists = agentes.filter((a) => a.tier === "specialist");
 
   return (
     <div className="mx-8 pt-8 pb-8">
@@ -113,7 +113,7 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
           </span>
           <div>
             <h1 className="text-2xl font-semibold text-white">Agentes IA</h1>
-            <p className="text-muted text-sm">{agentes.length} agentes</p>
+            <p className="text-muted text-sm">{agentes.filter((a) => a.tipo !== "pessoa").length} agentes de IA · {agentes.filter((a) => a.tipo === "pessoa").length} pessoas</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -166,7 +166,7 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
         </div>
       ) : view === "lista" ? (
         <div className="grid grid-cols-3 gap-4">
-          {agentes.map((a) => (
+          {agentes.filter((a) => a.tipo !== "pessoa").map((a) => (
             <div key={a.id} className={`bg-panel border border-border border-l-2 ${TIER_COLOR[a.tier]} rounded-lg p-4`}>
               <div className="flex items-start gap-3 mb-2">
                 <span className="w-10 h-10 rounded-md bg-panelmuted flex items-center justify-center text-lg shrink-0">
@@ -208,50 +208,7 @@ export default function AgentesPage({ initialView = "lista" }: { initialView?: "
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-6 py-4">
-          {ceo && (
-            <div className={`bg-panel border border-border border-l-2 ${TIER_COLOR.ceo} rounded-lg p-4 w-72 text-center`}>
-              <span className="text-2xl">{ceo.emoji}</span>
-              <div className="text-white text-sm font-medium mt-1">{ceo.nome}</div>
-              <p className="text-muted text-xs mt-1 line-clamp-2">{ceo.proposito}</p>
-              <span className="inline-block mt-2 text-[10px] bg-panelmuted text-accent rounded px-2 py-0.5">
-                {TIER_LABEL.ceo}
-              </span>
-            </div>
-          )}
-          {managers.length > 0 && (
-            <>
-              <div className="w-px h-6 bg-border" />
-              {managers.map((m) => (
-                <div key={m.id} className={`bg-panel border border-border border-l-2 ${TIER_COLOR.manager} rounded-lg p-4 w-72 text-center`}>
-                  <span className="text-2xl">{m.emoji}</span>
-                  <div className="text-white text-sm font-medium mt-1">{m.nome}</div>
-                  <p className="text-muted text-xs mt-1 line-clamp-2">{m.proposito}</p>
-                  <span className="inline-block mt-2 text-[10px] bg-panelmuted text-blue-400 rounded px-2 py-0.5">
-                    {TIER_LABEL.manager}
-                  </span>
-                </div>
-              ))}
-            </>
-          )}
-          {specialists.length > 0 && (
-            <>
-              <div className="w-px h-6 bg-border" />
-              <div className="flex gap-4 flex-wrap justify-center">
-                {specialists.map((s) => (
-                  <div key={s.id} className={`bg-panel border border-border border-l-2 ${TIER_COLOR.specialist} rounded-lg p-4 w-64 text-center`}>
-                    <span className="text-2xl">{s.emoji}</span>
-                    <div className="text-white text-sm font-medium mt-1">{s.nome}</div>
-                    <p className="text-muted text-xs mt-1 line-clamp-2">{s.proposito}</p>
-                    <span className="inline-block mt-2 text-[10px] bg-panelmuted text-orange-400 rounded px-2 py-0.5">
-                      {TIER_LABEL.specialist}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        <OrganogramaArvore nos={agentes} />
       )}
 
       {showNew && (

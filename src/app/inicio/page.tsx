@@ -83,26 +83,16 @@ export default function InicioPage() {
     <div className="pb-10">
       <div className="mx-8 pt-8">
         <h1 className="text-3xl font-semibold text-white">{saudacao}{nome ? `, ${nome}` : ""}.</h1>
-        <p className="text-muted text-sm mt-1">Assim está a clínica hoje.</p>
+        <p className="text-muted text-sm mt-1">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</p>
       </div>
 
       <MetaDoMes />
 
       <JornadaPaciente />
 
-      <div className="mx-8 mt-6 grid grid-cols-3 gap-4">
-        {r === null && <div className="text-muted text-sm">Carregando…</div>}
-        {cards.map(({ rotulo, valor, Icone, href }) => (
-          <Link key={rotulo} href={href} className="bg-panel border border-border rounded-lg p-4 hover:border-accent/50">
-            <div className="text-xs text-muted flex items-center gap-1.5"><Icone size={13} className="text-accent" /> {rotulo}</div>
-            <div className="text-2xl text-white font-semibold mt-1 tabular-nums">{valor}</div>
-          </Link>
-        ))}
-      </div>
-
       {r && (
-        <div className="mx-8 mt-6 bg-panel border border-border rounded-lg p-5">
-          <h2 className="text-white font-medium mb-3">Precisa de atenção</h2>
+        <div className="mx-8 mt-6 bg-panel border border-border rounded-2xl p-6">
+          <h2 className="text-xs uppercase tracking-[0.12em] text-muted mb-3">Precisa de atenção hoje</h2>
           {atencao.length === 0 ? (
             <p className="text-muted text-sm">Nada pendente agora. Tudo em dia.</p>
           ) : (

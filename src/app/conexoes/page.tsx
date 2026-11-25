@@ -28,7 +28,6 @@ const GRUPOS: { titulo: string; itens: { tipo: string; nome: string; frase: stri
   {
     titulo: "Outras",
     itens: [
-      { tipo: "whatsapp_oficial", nome: "WhatsApp Oficial (Meta)", frase: "Para quem usa a API oficial e anúncios de clique para WhatsApp.", Icone: MessageSquare },
       { tipo: "email_marketing", nome: "E-mail", frase: "Envio de e-mails pela Resend.", Icone: Mail },
       { tipo: "telefonia", nome: "Telefone (VoIP)", frase: "Ligações pelo sistema.", Icone: Phone },
       { tipo: "google_calendar", nome: "Google Agenda", frase: "Agenda da clínica.", Icone: Calendar },

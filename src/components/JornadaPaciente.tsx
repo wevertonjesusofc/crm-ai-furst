@@ -30,9 +30,9 @@ export default function JornadaPaciente() {
   const base = dados?.etapas[0]?.total ?? 0;
 
   return (
-    <div className="mx-8 mt-6 bg-panel border border-border rounded-lg p-5">
+    <div className="mx-8 mt-6 bg-panel border border-border rounded-2xl p-6">
       <div className="flex items-center justify-between gap-4 mb-1">
-        <h2 className="text-white font-medium">Jornada do paciente</h2>
+        <h2 className="text-xs uppercase tracking-[0.12em] text-muted">Jornada do paciente</h2>
         <div className="flex gap-1 bg-bg border border-border rounded-md p-0.5">
           {PERIODOS.map((p, i) => (
             <button key={p.rotulo} onClick={() => setPeriodo(i)} className={`px-2.5 py-1 rounded text-xs ${periodo === i ? "bg-accent text-bg font-medium" : "text-muted"}`}>

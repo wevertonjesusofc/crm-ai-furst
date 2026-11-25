@@ -5,7 +5,7 @@ export type NavSection = { title: string; items: NavItem[] };
 export const nav: NavSection[] = [
   {
     title: "Início",
-    items: [{ label: "Como tá meu dia", href: "/inicio" }],
+    items: [{ label: "Painel da clínica", href: "/inicio" }],
   },
   {
     title: "Pacientes",
@@ -14,7 +14,7 @@ export const nav: NavSection[] = [
       { label: "Funil de vendas", href: "/comercial/pipeline" },
       { label: "Agenda", href: "/comercial/consultas" },
       { label: "Pós-venda", href: "/comercial/pos-vendas" },
-      { label: "Conversas", href: "/comercial/inbox" },
+      { label: "Inbox", href: "/comercial/inbox" },
     ],
   },
   {
