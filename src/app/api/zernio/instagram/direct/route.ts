@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { origemPorComentario } from "@/lib/comentaRecebe";
 import { contextoZernio, ErroZernio, migracao022Pronta, ZernioMensagem } from "@/lib/zernio";
 import { registrarLead } from "@/lib/leads";
 
@@ -76,12 +77,15 @@ export async function POST(req: NextRequest) {
 
           try {
             const usuario = c.participantUsername ?? null;
+            // Veio de um "comente PALAVRA"? Então a origem é esse post.
+            const veioDeComentario = await origemPorComentario(db, cid, c.participantId ?? null, usuario).catch(() => null);
             const lead = await registrarLead(db, cid, {
               nome: c.participantName || (usuario ? `@${usuario}` : "Instagram"),
               instagram_id: c.participantId || `zernio:${c.id}`,
               instagram_usuario: usuario,
               origem_canal: "instagram",
-              origem_detalhe: `Direct do Instagram${c.accountUsername ? ` @${c.accountUsername}` : ""}`,
+              origem_detalhe: veioDeComentario?.origem_detalhe ?? `Direct do Instagram${c.accountUsername ? ` @${c.accountUsername}` : ""}`,
+              origem_post_id: veioDeComentario?.origem_post_id ?? undefined,
             });
             if (lead.novo) resumo.pacientes_novos++;
 

@@ -59,6 +59,13 @@ async function textosComIA(clinicaId: string, legenda: string, palavra: string) 
   }
 }
 
+/** Uma resposta por linha: a 1ª é a principal, as outras a Zernio sorteia (não fica robótico). */
+function respostas(texto: string | null) {
+  const linhas = (texto ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+  if (!linhas.length) return {};
+  return { commentReply: linhas[0], commentReplyVariations: linhas.slice(1) };
+}
+
 /** Procura nos posts recentes o "comente PALAVRA" e cria os rascunhos. */
 export async function detectarGatilhos(db: SupabaseClient, clinicaId: string, dias = 60) {
   const desde = new Date(Date.now() - dias * 86400000).toISOString();
@@ -121,7 +128,7 @@ export async function ativarGatilho(db: SupabaseClient, clinicaId: string, api: 
       matchMode: "word",
       typoTolerance: g.palavra.length >= 4,
       dmMessage: g.mensagem_direct,
-      commentReply: g.resposta_publica || undefined,
+      ...respostas(g.resposta_publica),
       publicReplyPolicy: "after_dm",
       isActive: true,
     };
@@ -145,8 +152,7 @@ export async function pausarGatilho(db: SupabaseClient, clinicaId: string, api: 
 export async function atualizarGatilho(db: SupabaseClient, clinicaId: string, api: Api, id: string) {
   const { data: g } = await db.from("gatilhos").select("*").eq("id", id).eq("clinica_id", clinicaId).maybeSingle();
   if (!g?.zernio_automation_id) return { ok: true, naZernio: false };
-  const corpo: Record<string, unknown> = { dmMessage: g.mensagem_direct };
-  if (g.resposta_publica?.trim()) corpo.commentReply = g.resposta_publica.trim();
+  const corpo: Record<string, unknown> = { dmMessage: g.mensagem_direct, ...respostas(g.resposta_publica) };
   corpo.buttons = g.botao_url && g.botao_titulo ? [{ type: "url", title: g.botao_titulo.slice(0, 20), url: g.botao_url }] : [];
   await api.mudarAutomacao(g.zernio_automation_id, corpo);
   return { ok: true, naZernio: true };
@@ -167,6 +173,7 @@ export async function sincronizarGatilhos(db: SupabaseClient, clinicaId: string,
     const { data: existe } = await db.from("gatilhos").select("id").eq("clinica_id", clinicaId).eq("zernio_automation_id", a.id).maybeSingle();
     if (existe) {
       await db.from("gatilhos").update({ ativo: !!a.isActive, stats: a.stats ?? {} }).eq("id", existe.id);
+      await guardarQuemComentou(db, clinicaId, api, a.id, palavra).catch(() => null);
       continue;
     }
     const { data: post } = a.platformPostId
@@ -180,7 +187,7 @@ export async function sincronizarGatilhos(db: SupabaseClient, clinicaId: string,
         post_url: post?.url ?? null,
         legenda: post?.legenda ?? a.name ?? null,
         palavra,
-        resposta_publica: a.commentReply ?? null,
+        resposta_publica: [a.commentReply, ...(a.commentReplyVariations ?? [])].filter(Boolean).join("\n") || null,
         mensagem_direct: a.dmMessage ?? "",
         zernio_automation_id: a.id,
         ativo: !!a.isActive,
@@ -189,6 +196,61 @@ export async function sincronizarGatilhos(db: SupabaseClient, clinicaId: string,
       { onConflict: "clinica_id,platform_post_id,palavra" }
     );
     importadas++;
+    await guardarQuemComentou(db, clinicaId, api, a.id, palavra).catch(() => null);
   }
   return { naZernio: lista.length, importadas };
+}
+
+/**
+ * Quem comentou a palavra entra em "engajados" (Social selling) marcado com o
+ * gatilho e o post. Quando essa pessoa chama no direct e vira paciente, a
+ * origem fica "Comentou PALAVRA" com o post certo.
+ */
+export async function guardarQuemComentou(db: SupabaseClient, clinicaId: string, api: Api, automationId: string, palavra: string) {
+  const { data: g } = await db.from("gatilhos").select("post_id, post_url").eq("clinica_id", clinicaId).eq("zernio_automation_id", automationId).maybeSingle();
+  const logs = (await api.logsAutomacao(automationId, { limit: 200 })).logs ?? [];
+  const porPessoa = new Map<string, (typeof logs)[number]>();
+  for (const l of logs) if (l.commenterId && !porPessoa.has(l.commenterId)) porPessoa.set(l.commenterId, l);
+  const ids = [...porPessoa.keys()];
+  if (!ids.length) return 0;
+  const { data: ja } = await db.from("engajados").select("externo_id, ultimos, comentarios").eq("clinica_id", clinicaId).eq("plataforma", "instagram").in("externo_id", ids);
+  const mapa = new Map((ja ?? []).map((e) => [e.externo_id as string, e]));
+  const linhas = ids.map((id) => {
+    const l = porPessoa.get(id)!;
+    const antes = mapa.get(id);
+    const ultimos = ((antes?.ultimos as { comment_id?: string }[] | undefined) ?? []).filter((u) => u.comment_id !== l.commentId);
+    const novo = { texto: l.commentText ?? palavra, link: g?.post_url ?? null, quando: l.createdAt ?? null, gatilho: palavra, post_id: g?.post_id ?? null, comment_id: l.commentId ?? null };
+    return {
+      clinica_id: clinicaId,
+      plataforma: "instagram",
+      externo_id: id,
+      usuario: l.commenterUsername ?? null,
+      nome: l.commenterName ?? null,
+      comentarios: Math.max(Number(antes?.comentarios ?? 0), 1),
+      ultimos: [novo, ...ultimos].slice(0, 8),
+      ultimo_em: l.createdAt ?? null,
+      atualizado_em: new Date().toISOString(),
+    };
+  });
+  await db.from("engajados").upsert(linhas, { onConflict: "clinica_id,plataforma,externo_id" });
+  // Quem já está no sistema como "Direct do Instagram" ganha a origem certa.
+  await db
+    .from("contacts")
+    .update({ origem_detalhe: `Comentou ${palavra} (Comenta & Recebe)`, ...(g?.post_id ? { origem_post_id: g.post_id } : {}) })
+    .eq("clinica_id", clinicaId)
+    .in("instagram_id", ids)
+    .like("origem_detalhe", "Direct do Instagram%");
+  return linhas.length;
+}
+
+/** Origem de quem chegou pelo Comenta & Recebe (para a ficha do paciente). */
+export async function origemPorComentario(db: SupabaseClient, clinicaId: string, instagramId: string | null, usuario: string | null) {
+  let q = db.from("engajados").select("ultimos").eq("clinica_id", clinicaId).eq("plataforma", "instagram");
+  if (instagramId && usuario) q = q.or(`externo_id.eq.${instagramId},usuario.eq.${usuario}`);
+  else if (instagramId) q = q.eq("externo_id", instagramId);
+  else if (usuario) q = q.eq("usuario", usuario);
+  else return null;
+  const { data } = await q.limit(1).maybeSingle();
+  const g = ((data?.ultimos as { gatilho?: string; post_id?: string | null }[] | undefined) ?? []).find((u) => u.gatilho);
+  return g ? { origem_detalhe: `Comentou ${g.gatilho} (Comenta & Recebe)`, origem_post_id: g.post_id ?? null } : null;
 }

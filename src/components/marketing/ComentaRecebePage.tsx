@@ -9,6 +9,21 @@ import { supabase } from "@/lib/supabase";
 
 type Midia = { tipo: string; url: string; capa: string | null };
 
+type Log = { id: string; commenterName?: string | null; commenterUsername?: string | null; commentText?: string | null; status?: string; error?: string | null; clickCount?: number; createdAt?: string };
+const STATUS: Record<string, [string, string]> = {
+  sent: ["Recebeu o direct", "text-accent"],
+  failed: ["Não recebeu", "text-red-300"],
+  skipped: ["Pulado", "text-muted"],
+  pending: ["Na fila", "text-sky-300"],
+  gated: ["Aguardando seguir", "text-sky-300"],
+};
+function motivo(e?: string | null) {
+  if (!e) return "";
+  if (/one private reply|already been sent/i.test(e)) return "já tinha recebido por esse comentário";
+  if (/7 days|seven days|too old/i.test(e)) return "comentário com mais de 7 dias";
+  return e.slice(0, 80);
+}
+
 type Gatilho = {
   id: string;
   palavra: string;
@@ -35,6 +50,16 @@ export default function ComentaRecebePage() {
   const [aviso, setAviso] = useState<{ ok: boolean; msg: string } | null>(null);
   const [confirmar, setConfirmar] = useState<string | null>(null);
   const [aberto, setAberto] = useState<Gatilho | null>(null);
+  const [quem, setQuem] = useState<{ logs: Log[]; total: number } | null>(null);
+  useEffect(() => {
+    setQuem(null);
+    if (!aberto?.zernio_automation_id) return;
+    (async () => {
+      const { data: s } = await supabase.auth.getSession();
+      const r = await fetch(`/api/comenta-recebe?acao=quem&id=${aberto.id}`, { method: "POST", headers: { authorization: `Bearer ${s.session?.access_token ?? ""}` } });
+      setQuem(r.ok ? await r.json() : { logs: [], total: 0 });
+    })();
+  }, [aberto]);
 
   async function carregar() {
     const { data } = await supabase
@@ -158,8 +183,8 @@ export default function ComentaRecebePage() {
                 </div>
                 <p className="text-[11px] text-muted line-clamp-1">{g.legenda?.split("\n")[0]}</p>
 
-                <label className="block text-[11px] text-muted" htmlFor={`pub-${g.id}`}><Reply size={11} className="inline mr-1" />Resposta no comentário</label>
-                <input id={`pub-${g.id}`} placeholder="Ex.: Fala, meu amigo! Te mandei lá no direct, dá uma olhadinha 😉" defaultValue={g.resposta_publica ?? ""} onBlur={(e) => salvar(g, { resposta_publica: e.target.value })} className={campo} />
+                <label className="block text-[11px] text-muted" htmlFor={`pub-${g.id}`}><Reply size={11} className="inline mr-1" />Resposta no comentário <span className="opacity-70">(uma por linha: o sistema sorteia, para não ficar robótico)</span></label>
+                <textarea id={`pub-${g.id}`} rows={2} placeholder={"Fala, meu amigo! Te mandei lá no direct, dá uma olhadinha 😉\nOutra versão na linha de baixo (o sistema sorteia)"} defaultValue={g.resposta_publica ?? ""} onBlur={(e) => salvar(g, { resposta_publica: e.target.value })} className={campo} />
 
                 <label className="block text-[11px] text-muted" htmlFor={`dm-${g.id}`}><MessageCircle size={11} className="inline mr-1" />Mensagem no direct (use {"{{first_name}}"})</label>
                 <textarea id={`dm-${g.id}`} rows={3} defaultValue={g.mensagem_direct} onBlur={(e) => salvar(g, { mensagem_direct: e.target.value })} className={campo} />
@@ -228,6 +253,37 @@ export default function ComentaRecebePage() {
                 <div className="rounded-xl bg-panelmuted p-3 text-sm text-white whitespace-pre-wrap">{aberto.mensagem_direct}</div>
                 {aberto.botao_titulo && <div className="mt-2 inline-block text-xs border border-accent/50 text-accent rounded-full px-3 py-1">{aberto.botao_titulo}</div>}
               </div>
+              {aberto.zernio_automation_id && (
+                <div>
+                  <div className="text-[11px] text-muted mb-1">Quem comentou {quem ? `· ${quem.total}` : ""}</div>
+                  {!quem && <p className="text-xs text-muted">Carregando…</p>}
+                  {quem && !quem.logs.length && <p className="text-xs text-muted">Ninguém ainda.</p>}
+                  <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                    {quem?.logs.map((l) => {
+                      const [rot, cor] = STATUS[l.status ?? ""] ?? [l.status ?? "", "text-muted"];
+                      return (
+                        <div key={l.id} className="rounded-lg bg-panelmuted px-3 py-2 flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-full bg-gradient-to-br from-accent/30 to-esmeralda/30 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                            {(l.commenterName || l.commenterUsername || "?").slice(0, 1).toUpperCase()}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs text-white truncate">
+                              {l.commenterUsername ? (
+                                <a href={`https://instagram.com/${l.commenterUsername}`} target="_blank" rel="noreferrer" className="hover:text-accent">@{l.commenterUsername}</a>
+                              ) : (l.commenterName ?? "Alguém")}
+                              <span className="text-muted"> · “{l.commentText}”</span>
+                            </div>
+                            <div className={`text-[10px] ${cor}`}>
+                              {rot}{l.error ? ` · ${motivo(l.error)}` : ""}{l.clickCount ? ` · clicou no botão` : ""}
+                              {l.createdAt && <span className="text-muted"> · {new Date(l.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div>
                 <div className="text-[11px] text-muted mb-1">Legenda</div>
                 <p className="text-xs text-muted whitespace-pre-wrap">{aberto.legenda}</p>

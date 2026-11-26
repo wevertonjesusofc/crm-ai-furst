@@ -86,6 +86,20 @@ export type ZernioPost = {
   platforms?: { platform: string; platformPostId?: string; accountId?: string; accountUsername?: string; platformPostUrl?: string; analytics?: Metricas }[];
 };
 
+export type ZernioLogAutomacao = {
+  id: string;
+  commentId?: string;
+  commenterId?: string;
+  commenterName?: string | null;
+  commenterUsername?: string | null;
+  commentText?: string | null;
+  status?: "pending" | "sent" | "failed" | "skipped" | "gated";
+  error?: string | null;
+  commentReplyStatus?: string | null;
+  clickCount?: number;
+  createdAt?: string;
+};
+
 export function zernio(chave: string) {
   async function chamar<T>(caminho: string, init?: RequestInit): Promise<T> {
     const r = await fetch(`${BASE}${caminho}`, {
@@ -116,13 +130,19 @@ export function zernio(chave: string) {
 
     /** Automações "comentou a palavra → recebe no direct". */
     automacoes: () =>
-      chamar<{ automations?: { id: string; name?: string; platform?: string; accountId?: string; platformPostId?: string; keywords?: string[]; matchMode?: string; dmMessage?: string; commentReply?: string; isActive?: boolean; stats?: Record<string, number>; createdAt?: string }[] }>(
+      chamar<{ automations?: { id: string; name?: string; platform?: string; accountId?: string; platformPostId?: string; keywords?: string[]; matchMode?: string; dmMessage?: string; commentReply?: string; commentReplyVariations?: string[]; isActive?: boolean; stats?: Record<string, number>; createdAt?: string }[] }>(
         "/comment-automations"
       ),
     criarAutomacao: (corpo: Record<string, unknown>) =>
       chamar<{ automation?: { id: string } }>("/comment-automations", { method: "POST", body: JSON.stringify(corpo) }),
     mudarAutomacao: (id: string, corpo: Record<string, unknown>) =>
       chamar<{ automation?: { id: string } }>(`/comment-automations/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(corpo) }),
+
+    /** Quem comentou a palavra: cada comentário que disparou a automação e o que aconteceu. */
+    logsAutomacao: (id: string, p: { limit?: number; skip?: number } = {}) =>
+      chamar<{ logs?: ZernioLogAutomacao[]; pagination?: { total: number; hasMore: boolean } }>(
+        `/comment-automations/${encodeURIComponent(id)}/logs?limit=${Math.min(p.limit ?? 50, 200)}&skip=${p.skip ?? 0}`
+      ),
 
     /** Posts com comentários (mais recentes primeiro). */
     postsComentados: (p: { accountId: string; limit?: number; cursor?: string }) => {

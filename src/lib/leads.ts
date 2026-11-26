@@ -13,6 +13,8 @@ export type LeadEntrada = {
   email?: unknown;
   origem_canal?: unknown;
   origem_detalhe?: unknown;
+  /** Post do Instagram que trouxe a pessoa (redes_posts.id). */
+  origem_post_id?: unknown;
   anuncio?: { plataforma?: unknown; id?: unknown; nome?: unknown; campanha?: unknown; conjunto?: unknown } | null;
   utm_source?: unknown;
   utm_medium?: unknown;
@@ -68,6 +70,7 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
   const origem = {
     origem_canal: s(b.origem_canal, 40) ?? (an ? (an.plataforma === "google" ? "anuncio_google" : "anuncio_meta") : null),
     origem_detalhe: s(b.origem_detalhe),
+    ...(s(b.origem_post_id, 60) ? { origem_post_id: s(b.origem_post_id, 60) } : {}),
     anuncio_id: anuncioId,
     utm_source: s(b.utm_source, 120),
     utm_medium: s(b.utm_medium, 120),
