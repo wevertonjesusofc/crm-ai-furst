@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
       if (!integ) continue;
       const cid = integ.clinica_id as string;
 
-      // Assinatura da Meta, se o App Secret estiver cadastrado.
+      // Assinatura da Meta: sem o App Secret cadastrado, não aceita (evita lead falso).
       const cfg = await lerIntegracao(db, cid, "whatsapp_oficial");
-      if (cfg.app_secret) {
+      if (!cfg.app_secret) continue;
+      {
         const assinatura = req.headers.get("x-hub-signature-256") ?? "";
         const esperado = "sha256=" + createHmac("sha256", cfg.app_secret).update(bruto).digest("hex");
         const a = Buffer.from(assinatura);

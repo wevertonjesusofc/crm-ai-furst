@@ -11,6 +11,12 @@ export async function POST(req: NextRequest) {
 
   const { data: u } = await clientFromRequest(req).auth.getUser();
   if (!u.user) return NextResponse.json({ error: "Faça login de novo." }, { status: 401 });
+  // Token do Claude mexe em tudo (agentes, funil): só o dono ou o suporte da plataforma criam.
+  const [{ data: dono }, { data: admin }] = await Promise.all([
+    db.from("clinica_membros").select("papel").eq("user_id", u.user.id).eq("papel", "dono").limit(1).maybeSingle(),
+    db.from("plataforma_admins").select("user_id").eq("user_id", u.user.id).maybeSingle(),
+  ]);
+  if (!dono && !admin) return NextResponse.json({ error: "Só o dono da clínica pode ligar o Claude." }, { status: 403 });
 
   const { nome } = await req.json().catch(() => ({ nome: "" }));
   const token = gerarToken();

@@ -223,7 +223,8 @@ export async function contextoZernio(req: NextRequest): Promise<
   if (!cid) return { ok: false, status: 403, error: "Usuário sem clínica." };
 
   const v = await lerIntegracao(db, cid, "redes_sociais");
-  const chave = v.zernio_api_key || process.env.ZERNIO_API_KEY;
+  // Em produção cada clínica usa a PRÓPRIA chave (Conexões). A do .env é só para testar aqui.
+  const chave = v.zernio_api_key || (process.env.NODE_ENV === "development" ? process.env.ZERNIO_API_KEY : undefined);
   if (!chave) return { ok: false, status: 400, error: "Conecte a Zernio em Configurações › Redes sociais (chave da API)." };
   return { ok: true, db, cid, api: zernio(chave) };
 }

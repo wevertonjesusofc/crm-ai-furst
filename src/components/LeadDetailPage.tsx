@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import NomeUsuario from "@/components/NomeUsuario";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -335,7 +336,7 @@ export default function LeadDetailPage({
         <div className="flex items-center gap-2 mt-3 text-xs text-muted">
           <Clock size={12} /> Lead há {daysSince(contact.created_at)} dias
           <span className="bg-panelmuted rounded-full px-2 py-0.5 flex items-center gap-1">
-            <User size={10} /> weverton jesus
+            <User size={10} /> <NomeUsuario />
           </span>
         </div>
       </div>
@@ -468,7 +469,7 @@ export default function LeadDetailPage({
                       <span className="text-white font-medium">{stage?.name ?? "—"}</span>
                     </div>
                     <div className="text-white font-semibold text-sm">{fmtMoney(d.value ?? 0)}</div>
-                    <div className="text-muted text-xs mb-2">weverton jesus</div>
+                    <div className="text-muted text-xs mb-2"><NomeUsuario /></div>
                     {d.status === "open" && (
                       <div className="flex gap-1.5">
                         <button

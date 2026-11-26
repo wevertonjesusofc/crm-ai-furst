@@ -50,7 +50,7 @@ const EVENT_LEGEND = [
   { label: "Interna", color: "bg-gray-400" },
 ];
 
-const AGENDA_OWNERS = ["Minha agenda", "weverton jesus"];
+const AGENDA_OWNERS = ["Minha agenda"];
 
 function AgendaTab() {
   const [tasks, setTasks] = useState<Task[]>([]);

@@ -62,7 +62,7 @@ export const INTEGRACOES: Record<string, Integracao> = {
       { nome: "waba_id", rotulo: "WhatsApp Business Account ID", placeholder: "1234567890" },
       { nome: "access_token", rotulo: "Token de acesso permanente", segredo: true, placeholder: "EAAG..." },
       { nome: "verify_token", rotulo: "Token de verificação do webhook", dica: "Invente uma palavra (ex.: prontto-2026) e cole a mesma na Meta." },
-      { nome: "app_secret", rotulo: "App Secret (recomendado)", segredo: true, dica: "Configurações do app › Básico › Chave secreta do app. Garante que só a Meta consegue mandar mensagens para o CRM." },
+      { nome: "app_secret", rotulo: "App Secret (obrigatório)", segredo: true, dica: "Configurações do app › Básico › Chave secreta do app. Garante que só a Meta consegue mandar mensagens para o CRM." },
     ],
     testavel: true,
     webhook: "/api/webhooks/whatsapp",

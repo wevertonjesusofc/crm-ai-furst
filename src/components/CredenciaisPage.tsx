@@ -74,23 +74,13 @@ export default function CredenciaisPage() {
           <div className="bg-panel border border-border rounded-lg p-5 w-[440px]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-medium flex items-center gap-2">
-                <ShieldAlert size={16} className="text-amber-400" /> Ainda não é seguro salvar chaves aqui
+                <ShieldAlert size={16} className="text-amber-400" /> As chaves ficam em Conexões
               </h3>
               <button onClick={() => setShowModal(false)} className="text-muted hover:text-white">
                 <X size={18} />
               </button>
             </div>
-            <p className="text-muted text-sm mb-3">
-              O CRM AURA ainda não tem login/autenticação, e o banco (Supabase) está com a leitura liberada pra
-              qualquer um que tenha a chave pública do app — é assim que o MVP funciona por enquanto.
-            </p>
-            <p className="text-muted text-sm mb-3">
-              Guardar uma chave de API real (Anthropic, OpenAI etc.) nesse banco hoje deixaria ela visível pra
-              qualquer pessoa que inspecionar o app. Por isso essa tela ainda é só uma prévia visual — a gente só
-              vai habilitar o cadastro de credenciais de verdade depois que tivermos login e um jeito seguro de
-              guardar segredo (ex: uma função de servidor, nunca direto no banco público).
-            </p>
-            <p className="text-muted text-xs mb-4">Isso está no checklist de integrações pendentes.</p>
+            <p className="text-muted text-sm mb-4">Cadastre as chaves (Claude, Zernio, WhatsApp, anúncios) em <b className="text-white">Conexões</b>. Elas ficam guardadas só no servidor, protegidas, e ninguém vê pelo navegador.</p>
             <div className="flex justify-end">
               <button onClick={() => setShowModal(false)} className="bg-accent text-bg text-sm font-medium px-4 py-1.5 rounded-md">
                 Entendi

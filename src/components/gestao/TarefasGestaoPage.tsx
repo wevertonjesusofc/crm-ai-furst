@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import NomeUsuario from "@/components/NomeUsuario";
 import { AlertTriangle, Calendar, CalendarDays, CheckCircle2, List, Kanban, Plus, X, Phone, MessageSquare, Mail, ClipboardCheck, User, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -247,7 +248,7 @@ export default function TarefasGestaoPage() {
               </div>
               <div>
                 <label className="text-[11px] text-muted">Responsável</label>
-                <div className="w-full bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1">weverton jesus</div>
+                <div className="w-full bg-bg border border-border rounded px-3 py-2 text-sm text-white mt-1"><NomeUsuario /></div>
               </div>
             </div>
 

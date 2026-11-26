@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import NomeUsuario from "@/components/NomeUsuario";
 import {
   Calendar,
   MessageSquare,
@@ -278,7 +279,7 @@ function GeralTab({ contactsCount, stages, openValue, ticketMedio, openCount }: 
               WJ
             </span>
             <div>
-              <div className="text-white text-sm">weverton jesus</div>
+              <div className="text-white text-sm"><NomeUsuario /></div>
               <div className="text-muted text-[11px]">0v · 0%</div>
             </div>
           </div>
@@ -403,7 +404,7 @@ function VendasTab({ ticketMedio, openCount }: Props) {
             <span className="w-7 h-7 rounded-full bg-panelmuted text-white text-xs flex items-center justify-center">
               WJ
             </span>
-            <span className="text-white text-sm">weverton jesus</span>
+            <span className="text-white text-sm"><NomeUsuario /></span>
           </div>
           <span className="text-white font-medium">{fmtMoney(0)}</span>
         </div>

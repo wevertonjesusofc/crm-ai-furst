@@ -13,15 +13,16 @@ Claude (você) ── MCP central (sua instalação) ──► MCP do Rafael ─
                          └── Painel de clientes: "Usar no Claude" troca a conta ativa
 ```
 
-## 1. Ordem das migrações (SQL Editor do Supabase)
+## 1. Banco (SQL Editor do Supabase)
 
-Rode na ordem, colando o arquivo inteiro e clicando em **Run**:
+**Projeto novo e vazio:** rode só o arquivo `instalar_completo.sql` (tem todas as migrações, da 001 à 030, na ordem).
+Depois, ainda no SQL Editor, crie o convite do dono (sem isso ninguém consegue se cadastrar):
 
-`001` → `002` → `003` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → **`017_multiclinica`** → **`018_instalacao_por_clinica`** → **`019_conhecimento_clinica`** → **`020_ficha_paciente_e_trafego`** → **`021_integracoes`**
+```sql
+insert into public.convites (email, papel) values ('EMAIL_DO_DONO', 'dono') on conflict (email) do nothing;
+```
 
-Na sua instalação atual (que já tem 001 a 016), rode só **017 a 021**.
-
-Num projeto **novo e vazio**, use o arquivo único `instalar_completo.sql`.
+**Instalação que já existe:** rode só as migrações que faltam, na ordem do número (ex.: `029`, depois `030`).
 
 **Atenção aos acentos:** abra o arquivo num editor e copie de lá, ou copie pelo terminal com
 `LANG=en_US.UTF-8 pbcopy < instalar_completo.sql`. O `pbcopy` sem o `LANG` embaralha acentos e emojis.
@@ -34,15 +35,21 @@ Se isso já aconteceu, rode `corrigir_acentos.sql`.
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase › Project Settings › API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase › Project Settings › API (anon / publishable) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase › Project Settings › API (service_role / secret). **Só no servidor.** |
-| `ANTHROPIC_API_KEY` | console.anthropic.com › API Keys (o cérebro dos agentes) |
-| `META_ACCESS_TOKEN` | Opcional. Token com permissão `ads_read` da conta de anúncios **da clínica** (Gerenciador de Negócios › Usuários do sistema) |
-| `META_AD_ACCOUNT_ID` | Opcional. Ex.: `act_1234567890` |
+| `CRON_SECRET` | **Obrigatória.** Qualquer texto longo e aleatório. A Vercel usa para chamar a rotina das 7h (`/api/rotinas/manha`); sem ela a rotina não roda. |
 
-No Supabase › Authentication › URL Configuration, coloque o domínio da clínica em **Site URL** (para o link de confirmação de e-mail voltar para o lugar certo).
+Não coloque chaves da Aura (Anthropic, Zernio, Meta, Gemini) na Vercel de um cliente. **Cada clínica cadastra as próprias em Conexões**, dentro do sistema. As variáveis `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `ZERNIO_API_KEY`, `META_ACCESS_TOKEN` e `META_AD_ACCOUNT_ID` servem só para testar no seu computador.
+
+No Supabase › Authentication › URL Configuration:
+- **Site URL**: `https://dominio-da-clinica`
+- **Redirect URLs**: `https://dominio-da-clinica/**`
+
+Sem isso, o link de confirmação do e-mail volta para `localhost`.
+
+**Plano da Vercel:** use o **Pro** para cliente. O Hobby (grátis) não permite uso comercial e corta as rotinas longas (importar direct, social selling, Comenta & Recebe) em 60 segundos.
 
 ## 3. Sua instalação (central) pela primeira vez
 
-1. Rode 017, 018 e 019.
+1. Rode as migrações que faltam (até a 030) e crie o seu convite de dono (passo 1).
 2. Coloque `SUPABASE_SERVICE_ROLE_KEY` no `.env.local`.
 3. Abra `/cadastro` e crie a sua conta. Você assume a clínica desta instalação.
 4. No SQL Editor, vire administrador (troque o e-mail):
@@ -55,14 +62,15 @@ No Supabase › Authentication › URL Configuration, coloque o domínio da clí
 ## 4. Nova clínica
 
 1. **Domínio**: de preferência comprado no CNPJ da clínica (facilita transferir depois).
-2. **Supabase**: crie um projeto novo e rode as migrações 001 a 019.
+2. **Supabase**: crie um projeto novo, rode o `instalar_completo.sql` e crie o convite do dono com o e-mail dele (passo 1).
 3. Ainda no SQL Editor, crie o seu convite de suporte:
    ```sql
    insert into public.convites (email, papel, suporte_plataforma)
    values ('SEU_EMAIL', 'equipe', true) on conflict (email) do nothing;
    ```
-4. **Vercel**: importe este código como projeto novo, preencha as variáveis com as chaves **do Supabase da clínica** e ligue o domínio.
-5. Mande o link `https://dominio-da-clinica/cadastro` para o dono. **Ele se cadastra primeiro** e vira o dono; o sistema já nasce com o funil e o organograma.
+4. **Vercel**: importe este código como projeto novo, preencha as 4 variáveis (Supabase da clínica + `CRON_SECRET`) e ligue o domínio.
+   Depois, no sistema, em **Conexões**, cadastre as chaves da clínica (Claude, Zernio, WhatsApp, Telegram).
+5. Mande o link `https://dominio-da-clinica/cadastro` para o dono. Só o e-mail convidado como dono consegue assumir a clínica; o sistema já nasce com o funil e o organograma.
 6. Você se cadastra no mesmo link com o seu e-mail e entra como suporte.
 7. No sistema da clínica, em **Sistema › Conectar IA**, gere um token.
 8. Na sua central, em **Painel de clientes**, cadastre a clínica (endereço do sistema, projetos) e cole o token em **Token do MCP**.
@@ -106,9 +114,8 @@ Na central, também `listar_clientes` e `usar_cliente`.
 
 ## Ainda não feito
 
-- Google Ads: puxar o gasto pela API exige aprovação do Google (developer token). Peça logo. Enquanto isso, o lead que chega com `gclid`/UTM já fica marcado.
-- Webhook oficial do WhatsApp (receber e responder mensagens dentro do CRM) e Instagram Direct.
-
-- Ligar WhatsApp e Instagram de verdade (o motor já responde no Playground e no `testar_agente`).
+- Google Ads: puxar o gasto pela API exige aprovação do Google (developer token). Enquanto isso, o lead que chega com `gclid`/UTM já fica marcado.
+- WhatsApp da equipe pela UAZAPI (o oficial da Meta já recebe pelo webhook).
+- Tela para o dono convidar a equipe (hoje é pelo SQL Editor, com `insert into convites`).
+- Formulário do site direto no navegador para `/api/rastreio/lead` (falta liberar CORS; por enquanto mande pelo servidor, Make ou n8n).
 - Login do MCP por OAuth (hoje é por token, que funciona no Claude Code).
-- Trazer o agente de conteúdo da ilha de edição para dentro do CRM.
