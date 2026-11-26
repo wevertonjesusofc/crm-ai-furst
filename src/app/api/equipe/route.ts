@@ -46,7 +46,8 @@ export async function GET(req: NextRequest) {
         whatsapp: zap?.externo_id ?? null,
         desde: m.created_at,
         sou_eu: m.user_id === eu.id,
-        status: "ativo" as const,
+        // Convidado por e-mail que ainda não abriu o link e criou a senha.
+        status: (data.user && !data.user.last_sign_in_at ? "convidado" : "ativo") as "ativo" | "convidado",
       };
     })
   );
@@ -99,7 +100,18 @@ export async function POST(req: NextRequest) {
         .from("canais_autorizados")
         .upsert({ clinica_id: cid, canal: "whatsapp", externo_id: zap, nome, papel, agente_id: pessoaId, ativo: true }, { onConflict: "clinica_id,canal,externo_id" });
     }
-    return NextResponse.json({ ok: true });
+    // E-mail de convite: a pessoa clica, aceita e cria a senha em /definir-senha.
+    const origem = req.headers.get("origin") ?? req.nextUrl.origin;
+    const { error: ei } = await db.auth.admin.inviteUserByEmail(email, { redirectTo: `${origem}/definir-senha`, data: { nome } });
+    if (ei) {
+      const jaTemConta = /already|registered|exists/i.test(ei.message);
+      return NextResponse.json({
+        ok: true,
+        emailEnviado: false,
+        aviso: jaTemConta ? "Essa pessoa já tem conta. Ela entra com o e-mail e a senha dela." : `Convite salvo, mas o e-mail não saiu (${ei.message}). Mande o link de cadastro para ela.`,
+      });
+    }
+    return NextResponse.json({ ok: true, emailEnviado: true });
   }
 
   if (acao === "remover") {

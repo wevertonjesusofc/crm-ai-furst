@@ -7,7 +7,7 @@ import { LogOut, Shield, ArrowLeftRight } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
 
-const PUBLICAS = ["/login", "/cadastro"];
+const PUBLICAS = ["/login", "/cadastro", "/definir-senha"];
 
 type Contexto = { clinicaNome: string; admin: boolean; entradoComoAdmin: boolean };
 
@@ -28,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (estado === "deslogado" && !publica) router.replace("/login");
-    if (estado === "logado" && publica) router.replace("/inicio");
+    if (estado === "logado" && publica && pathname !== "/definir-senha") router.replace("/inicio");
   }, [estado, publica, router]);
 
   useEffect(() => {

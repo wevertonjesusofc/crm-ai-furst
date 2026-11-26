@@ -73,8 +73,8 @@ export default function EquipeEmpresaPage() {
     setEnviando(true);
     setAviso(null);
     try {
-      await api("/api/equipe?acao=convidar", novo);
-      setAviso({ ok: true, msg: `${novo.nome || novo.email} convidado(a). Mande o link de cadastro para a pessoa entrar com esse e-mail.` });
+      const r = await api("/api/equipe?acao=convidar", novo);
+      setAviso({ ok: true, msg: r.emailEnviado ? `Convite enviado para ${novo.email}. A pessoa aceita pelo e-mail, cria a senha e já entra.` : r.aviso });
       setNovo({ nome: "", email: "", cargo: "", whatsapp: "", papel: "equipe" });
       carregar();
     } catch (err) {
@@ -157,7 +157,7 @@ export default function EquipeEmpresaPage() {
                 </div>
               </div>
               <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full ${p.status === "ativo" ? "bg-accent/15 text-accent" : "bg-sky-500/10 text-sky-300"}`}>
-                {p.status === "ativo" ? "No sistema" : "Convite enviado"}
+                {p.status === "ativo" ? "No sistema" : "Aguardando aceitar"}
               </span>
               {podeEditar && !p.sou_eu && (
                 <button onClick={() => remover(p)} aria-label={`Tirar acesso de ${p.nome}`} title="Tirar acesso" className="text-muted hover:text-red-300 p-1.5"><Trash2 size={14} /></button>
@@ -180,13 +180,13 @@ export default function EquipeEmpresaPage() {
                 Acesso:
                 <select aria-label="Tipo de acesso" value={novo.papel} onChange={(e) => setNovo({ ...novo, papel: e.target.value })} className="bg-bg border border-border rounded-lg px-2 py-1 text-white text-xs">
                   <option value="equipe">Equipe (usa o sistema)</option>
-                  <option value="dono">Sócio / dono (também mexe em conexões e equipe)</option>
+                  <option value="dono">Gerente / sócio (acesso total: convida pessoas, mexe em conexões)</option>
                 </select>
               </label>
               <button disabled={enviando} className="bg-accent text-bg text-sm font-medium px-4 py-2 rounded-full disabled:opacity-60">{enviando ? "Convidando…" : "Convidar"}</button>
             </div>
             <p className="text-[11px] text-muted mt-3">
-              A pessoa entra em <b className="text-white">/cadastro</b> com esse e-mail. Ela também aparece no Organograma, e o WhatsApp dela é o que o Gerente reconhece.
+              A pessoa recebe um e-mail de convite, clica em aceitar e cria a senha. Ela também aparece no Organograma, e o WhatsApp dela é o que o Gerente reconhece.
             </p>
           </form>
         )}
