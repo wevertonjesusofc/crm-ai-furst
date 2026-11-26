@@ -189,7 +189,16 @@ export default function LeadDetailPage({
   }
 
   async function moveStage(stageId: string) {
-    if (!primaryDeal) return;
+    if (!primaryDeal) {
+      // Ainda não está no funil (ex.: só mandou direct): entra agora, na etapa clicada.
+      const { data } = await supabase
+        .from("deals")
+        .insert({ contact_id: contact.id, stage_id: stageId, title: `Oportunidade: ${contact.name}`, value: 0, status: stageId === ganhoStage?.id ? "won" : stageId === perdidoStage?.id ? "lost" : "open" })
+        .select("id, title, value, stage_id, status, created_at")
+        .single();
+      if (data) setDeals([data as Deal]);
+      return;
+    }
     const isGanho = stageId === ganhoStage?.id;
     const isPerdido = stageId === perdidoStage?.id;
     const status = isGanho ? "won" : isPerdido ? "lost" : "open";
@@ -311,6 +320,7 @@ export default function LeadDetailPage({
           <span className="text-xs text-muted flex items-center gap-1 bg-panelmuted rounded-md px-2 py-1.5">
             <Briefcase size={12} /> Funil de Vendas <ChevronDown size={12} />
           </span>
+          {!primaryDeal && <span className="text-[11px] text-amber-300">Fora do funil · clique numa etapa para colocar</span>}
           {stages.map((s) => {
             const active = s.id === primaryDeal?.stage_id;
             const isPerdido = s.name === "Perdido";
@@ -318,7 +328,7 @@ export default function LeadDetailPage({
               <button
                 key={s.id}
                 onClick={() => moveStage(s.id)}
-                disabled={!primaryDeal}
+                title={primaryDeal ? undefined : "Colocar no funil nesta etapa"}
                 className={`text-xs px-2.5 py-1.5 rounded-md ${
                   active
                     ? isPerdido

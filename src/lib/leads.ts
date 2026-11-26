@@ -26,6 +26,8 @@ export type LeadEntrada = {
   /** Direct do Instagram (Zernio): id da pessoa na rede e o @. Precisa da migração 022. */
   instagram_id?: unknown;
   instagram_usuario?: unknown;
+  /** false = só cadastra o paciente; não abre oportunidade no funil (ex.: quem só mandou direct). */
+  abrir_oportunidade?: boolean;
 };
 
 const s = (v: unknown, max = 300) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -90,7 +92,7 @@ export async function registrarLead(db: SupabaseClient, cid: string, b: LeadEntr
   }
   const contatoId = contato!.id;
 
-  const { data: aberta } = await db.from("deals").select("id").eq("clinica_id", cid).eq("contact_id", contatoId).eq("status", "open").limit(1).maybeSingle();
+  const { data: aberta } = b.abrir_oportunidade === false ? { data: { id: "pular" } } : await db.from("deals").select("id").eq("clinica_id", cid).eq("contact_id", contatoId).eq("status", "open").limit(1).maybeSingle();
   if (!aberta) {
     const { data: etapa } = await db.from("pipeline_stages").select("id").eq("clinica_id", cid).order("position").limit(1).maybeSingle();
     await db.from("deals").insert({ clinica_id: cid, contact_id: contatoId, stage_id: etapa?.id ?? null, title: `Novo paciente: ${nome}`, value: 0 });

@@ -15,7 +15,7 @@ Claude (você) ── MCP central (sua instalação) ──► MCP do Rafael ─
 
 ## 1. Banco (SQL Editor do Supabase)
 
-**Projeto novo e vazio:** rode só o arquivo `instalar_completo.sql` (tem todas as migrações, da 001 à 030, na ordem).
+**Projeto novo e vazio:** rode só o arquivo `instalar_completo.sql` (tem todas as migrações, da 001 à 031, na ordem).
 Depois, ainda no SQL Editor, crie o convite do dono (sem isso ninguém consegue se cadastrar):
 
 ```sql
@@ -49,7 +49,7 @@ Sem isso, o link de confirmação do e-mail volta para `localhost`.
 
 ## 3. Sua instalação (central) pela primeira vez
 
-1. Rode as migrações que faltam (até a 030) e crie o seu convite de dono (passo 1).
+1. Rode as migrações que faltam (até a 031) e crie o seu convite de dono (passo 1).
 2. Coloque `SUPABASE_SERVICE_ROLE_KEY` no `.env.local`.
 3. Abra `/cadastro` e crie a sua conta. Você assume a clínica desta instalação.
 4. No SQL Editor, vire administrador (troque o e-mail):
@@ -116,6 +116,5 @@ Na central, também `listar_clientes` e `usar_cliente`.
 
 - Google Ads: puxar o gasto pela API exige aprovação do Google (developer token). Enquanto isso, o lead que chega com `gclid`/UTM já fica marcado.
 - WhatsApp da equipe pela UAZAPI (o oficial da Meta já recebe pelo webhook).
-- Tela para o dono convidar a equipe (hoje é pelo SQL Editor, com `insert into convites`).
 - Formulário do site direto no navegador para `/api/rastreio/lead` (falta liberar CORS; por enquanto mande pelo servidor, Make ou n8n).
 - Login do MCP por OAuth (hoje é por token, que funciona no Claude Code).

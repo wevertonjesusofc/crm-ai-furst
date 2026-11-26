@@ -76,7 +76,9 @@ export async function POST(req: NextRequest) {
           if (simular) continue;
 
           try {
-            const usuario = c.participantUsername ?? null;
+            // A Zernio às vezes manda o id numérico no lugar do @; aí o @ é o nome.
+            const handle = (v?: string | null) => (v && /^[A-Za-z0-9._]{2,30}$/.test(v) && !/^\d+$/.test(v) ? v : null);
+            const usuario = handle(c.participantUsername) ?? handle(c.participantName) ?? null;
             // Veio de um "comente PALAVRA"? Então a origem é esse post.
             const veioDeComentario = await origemPorComentario(db, cid, c.participantId ?? null, usuario).catch(() => null);
             const lead = await registrarLead(db, cid, {
@@ -86,6 +88,8 @@ export async function POST(req: NextRequest) {
               origem_canal: "instagram",
               origem_detalhe: veioDeComentario?.origem_detalhe ?? `Direct do Instagram${c.accountUsername ? ` @${c.accountUsername}` : ""}`,
               origem_post_id: veioDeComentario?.origem_post_id ?? undefined,
+              // Direct não é venda: entra como paciente; vai para o funil quando alguém colocar.
+              abrir_oportunidade: false,
             });
             if (lead.novo) resumo.pacientes_novos++;
 

@@ -45,6 +45,7 @@ export const nav: NavSection[] = [
   {
     title: "Sistema",
     items: [
+      { label: "Equipe e empresa", href: "/sistema/equipe" },
       { label: "Conexões", href: "/conexoes" },
       { label: "Configurações", href: "/sistema/configuracoes" },
     ],
