@@ -20,3 +20,12 @@ alter table public.clinicas add column if not exists site text;
 alter table public.agentes add column if not exists email text;
 
 alter table public.sistema_config alter column perfil_nome set default '';
+
+-- Tráfego no estilo painel de rastreio: criativo (miniatura e vídeo), status
+-- na plataforma, alcance e leads por dia.
+alter table public.anuncios add column if not exists video_url text;
+alter table public.anuncios add column if not exists formato text;            -- video, imagem, carrossel
+alter table public.anuncios add column if not exists status_plataforma text;  -- ACTIVE, PAUSED…
+alter table public.anuncios add column if not exists link text;
+alter table public.anuncios_gasto add column if not exists alcance integer not null default 0;
+alter table public.anuncios_gasto add column if not exists leads integer not null default 0;

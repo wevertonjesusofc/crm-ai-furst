@@ -18,6 +18,7 @@ type Linha = {
   adset_name?: string;
   spend?: string;
   impressions?: string;
+  reach?: string;
   clicks?: string;
   date_start: string;
   actions?: { action_type: string; value: string }[];
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
   const versao = process.env.META_GRAPH_VERSION || "v23.0";
   const params = new URLSearchParams({
     level: "ad",
-    fields: "ad_id,ad_name,campaign_name,adset_name,spend,impressions,clicks,actions",
+    fields: "ad_id,ad_name,campaign_name,adset_name,spend,impressions,reach,clicks,actions",
     time_increment: "1",
     date_preset: "last_30d",
     limit: "500",
@@ -80,16 +81,43 @@ export async function POST(req: NextRequest) {
     const conversas = (l.actions ?? [])
       .filter((a) => a.action_type.includes("messaging_conversation_started"))
       .reduce((s, a) => s + Number(a.value || 0), 0);
-    await db.from("anuncios_gasto").upsert({
-      anuncio_id: anuncioId,
-      clinica_id: cid,
-      dia: l.date_start,
-      gasto: Number(l.spend ?? 0),
-      impressoes: Number(l.impressions ?? 0),
-      cliques: Number(l.clicks ?? 0),
-      conversas,
-    });
+    const leads = (l.actions ?? [])
+      .filter((a) => a.action_type === "lead" || a.action_type.includes("leadgen") || a.action_type.includes("fb_pixel_lead"))
+      .reduce((s, a) => s + Number(a.value || 0), 0);
+    const base = { anuncio_id: anuncioId, clinica_id: cid, dia: l.date_start, gasto: Number(l.spend ?? 0), impressoes: Number(l.impressions ?? 0), cliques: Number(l.clicks ?? 0), conversas };
+    const { error } = await db.from("anuncios_gasto").upsert({ ...base, alcance: Number(l.reach ?? 0), leads });
+    if (error) await db.from("anuncios_gasto").upsert(base); // antes da migração 031
   }
 
-  return NextResponse.json({ ok: true, anuncios, dias: linhas.length });
+  // Criativos: miniatura, vídeo, formato e se está ligado na Meta.
+  let criativos = 0;
+  let next: string | null = `https://graph.facebook.com/${versao}/${conta}/ads?${new URLSearchParams({
+    fields: "id,effective_status,creative{thumbnail_url,image_url,video_id,object_type,instagram_permalink_url,asset_feed_spec}",
+    limit: "200",
+    access_token: token,
+  })}`;
+  while (next) {
+    const r: Response = await fetch(next);
+    const d = await r.json();
+    if (!r.ok) break;
+    for (const ad of (d.data ?? []) as { id: string; effective_status?: string; creative?: { thumbnail_url?: string; image_url?: string; video_id?: string; object_type?: string; instagram_permalink_url?: string } }[]) {
+      const cr = ad.creative ?? {};
+      let video: string | null = null;
+      if (cr.video_id) {
+        const v = await fetch(`https://graph.facebook.com/${versao}/${cr.video_id}?fields=source,picture&access_token=${token}`).then((x) => x.json()).catch(() => null);
+        video = v?.source ?? null;
+      }
+      const formato = cr.video_id ? "video" : cr.object_type === "SHARE" && !cr.image_url ? "carrossel" : "imagem";
+      const campos = { criativo_url: cr.image_url ?? cr.thumbnail_url ?? null, ativo: ad.effective_status === "ACTIVE" };
+      const { error } = await db
+        .from("anuncios")
+        .update({ ...campos, video_url: video, formato, status_plataforma: ad.effective_status ?? null, link: cr.instagram_permalink_url ?? null })
+        .eq("clinica_id", cid).eq("plataforma", "meta").eq("externo_id", ad.id);
+      if (error) await db.from("anuncios").update(campos).eq("clinica_id", cid).eq("plataforma", "meta").eq("externo_id", ad.id);
+      criativos++;
+    }
+    next = d.paging?.next ?? null;
+  }
+
+  return NextResponse.json({ ok: true, anuncios, dias: linhas.length, criativos });
 }
