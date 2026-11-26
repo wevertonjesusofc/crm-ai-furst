@@ -88,17 +88,17 @@ export const INTEGRACOES: Record<string, Integracao> = {
   meta_ads: {
     tipo: "meta_ads",
     titulo: "Meta Ads (Facebook e Instagram)",
-    descricao: "Puxa o gasto, os cliques e as conversas de cada anúncio para a tela Tráfego e Vendas.",
+    descricao: "Puxa o gasto, os cliques, as conversas, a miniatura e o vídeo de cada anúncio para a tela Tráfego e Vendas, e liga/desliga o anúncio por lá.",
     campos: [
       { nome: "ad_account_id", rotulo: "ID da conta de anúncios", placeholder: "act_1234567890" },
-      { nome: "access_token", rotulo: "Token de acesso (ads_read)", segredo: true, placeholder: "EAAG..." },
+      { nome: "access_token", rotulo: "Token de acesso (ads_read + ads_management)", segredo: true, placeholder: "EAAG..." },
       { nome: "page_id", rotulo: "ID da página do Facebook (opcional)" },
       { nome: "pixel_id", rotulo: "ID do Pixel (opcional)" },
     ],
     testavel: true,
     comoConseguir: [
       "Gerenciador de Negócios › Configurações › Contas de anúncios: copie o ID (coloque act_ na frente).",
-      "Usuários do sistema › Gerar token com a permissão ads_read para essa conta.",
+      "Usuários do sistema › Gerar token com as permissões ads_read (ver os números) e ads_management (ligar e desligar anúncio pela tela).",
     ],
   },
   redes_sociais: {
